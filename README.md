@@ -1,7 +1,7 @@
 # Overview
 
 **Pipelines and Initial Database objects can be found here:**  
-https://github.com/microsoft/Dynamics-365-FastTrack-Implementation-Assets/tree/master/Analytics/DataverseLink/DataIntegration
+https://github.com/LeeKnight344/D365-FinOps-StarterKit.git
 
 This guide walks users through creating the resources required for digesting data from F&O or Dataverse using the Synapse Link for Dataverse Connector (referred to as SLfD throughout this repo) into a Synapse workspace, and loading that data incrementally into either a Synapse Dedicated SQL Pool or an Azure-hosted/On-Prem SQL Server.
 
