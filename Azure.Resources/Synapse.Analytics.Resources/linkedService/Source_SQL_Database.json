@@ -1,0 +1,25 @@
+{
+	"name": "Source_SQL_Database",
+	"type": "Microsoft.Synapse/workspaces/linkedservices",
+	"properties": {
+		"parameters": {
+			"SourceDbServer": {
+				"type": "string",
+				"defaultValue": "slfd-dev-sw-01-ondemand.sql.azuresynapse.net"
+			},
+			"SourceDbName": {
+				"type": "string",
+				"defaultValue": "slfd-dev-sdw"
+			}
+		},
+		"annotations": [],
+		"type": "AzureSqlDatabase",
+		"typeProperties": {
+			"connectionString": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=@{linkedService().SourceDbServer};Initial Catalog=@{linkedService().SourceDbName}"
+		},
+		"connectVia": {
+			"referenceName": "AutoResolveIntegrationRuntime",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}

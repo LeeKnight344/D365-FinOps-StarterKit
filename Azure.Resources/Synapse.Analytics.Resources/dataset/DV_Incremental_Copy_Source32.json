@@ -1,0 +1,31 @@
+{
+	"name": "DV_Incremental_Copy_Source32",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "Source_SQL_Database",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"DbServer": {
+				"type": "string"
+			},
+			"DbName": {
+				"type": "string"
+			},
+			"TableName": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": {
+				"value": "@dataset().TableName",
+				"type": "Expression"
+			}
+		}
+	},
+	"type": "Microsoft.Synapse/workspaces/datasets"
+}

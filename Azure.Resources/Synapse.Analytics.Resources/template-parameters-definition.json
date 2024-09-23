@@ -1,0 +1,39 @@
+{
+    "Microsoft.Synapse/workspaces/pipelines": {
+        "properties": {
+            "parameters": {
+                "*": {
+                    "*": "="
+                }
+            }
+        }
+    },
+    "Microsoft.Synapse/workspaces/linkedServices": {
+        "*": {
+            "properties": {
+                "typeProperties": {
+                    "*": "="
+                }
+            }
+        }
+    },
+    "Microsoft.DataFactory/factories/triggers": {
+        "properties": {
+            "pipelines": [
+                {
+                    "parameters": {
+                        "*": "="
+                    }
+                }
+            ],
+            "pipeline": {
+                "parameters": {
+                    "*": "="
+                }
+            },
+            "typeProperties": {
+                "scope": "="
+            }
+        }
+    }
+}

@@ -1,0 +1,25 @@
+{
+	"name": "D365_IncrementalCSV_DataLoad",
+	"properties": {
+		"description": "Trigger for Loading Synapse Link for Dataverse CSV export into a Dedicated Azure SQL Instance",
+		"annotations": [],
+		"runtimeState": "Started",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "DVLinkToSQL_IncrementalCopy",
+					"type": "PipelineReference"
+				}
+			}
+		],
+		"type": "ScheduleTrigger",
+		"typeProperties": {
+			"recurrence": {
+				"frequency": "Minute",
+				"interval": 15,
+				"startTime": "2024-09-21T19:00:00",
+				"timeZone": "GMT Standard Time"
+			}
+		}
+	}
+}

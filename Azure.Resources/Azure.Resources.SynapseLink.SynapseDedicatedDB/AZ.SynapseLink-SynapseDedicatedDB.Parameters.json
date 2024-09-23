@@ -1,0 +1,120 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "AZ_SynapseWorkspace_Name": {
+      "value": null
+    },
+    "AZ_SynapseWorkspace_Managed_ResourceGroupName": {
+      "value": null
+    },
+    "AZ_SynapseWorkspace_EntraID_Admin_ObjectID": {
+      "value": null
+    },
+    "AZ_Resource_Location": {
+      "value": null
+    },
+    "AZ_StorageAccount_Name": {
+      "value": null
+    },
+    "AZ_SparkPool_SynapseWorkspace_Name": {
+      "value": null
+    },
+    "AZ_SparkPool_AutoScale": {
+      "value": null
+    },
+    "AZ_SparkPool_IsolatedCompute": {
+      "value": null
+    },
+    "AZ_SparkPool_MinNodeCount": {
+      "value": null
+    },
+    "AZ_SparkPool_MaxNodeCount": {
+      "value": null
+    },
+    "AZ_SparkPool_NodeCount": {
+      "value": null
+    },
+    "AZ_SparkPool_NodeSizeFamily": {
+      "value": null
+    },
+    "AZ_SparkPool_NodeSize": {
+      "value": null
+    },
+    "AZ_SparkPool_AutoPause": {
+      "value": null
+    },
+    "AZ_SparkPool_AutoPauseDelay": {
+      "value": null
+    },
+    "AZ_SparkPool_Version": {
+      "value": null
+    },
+    "AZ_SparkPool_ConfigFile_Name": {
+      "value": null
+    },
+    "AZ_SparkPool_ConfigFile_PropertiesContent": {
+      "value": null
+    },
+    "AZ_SparkPool_SessionLevelPackages": {
+      "value": null
+    },
+    "AZ_SparkPool_DynamicExecutorAllocation": {
+      "value": null
+    },
+    "AZ_SparkPool_MinExecutorCount": {
+      "value": null
+    },
+    "AZ_SparkPool_MaxExecutorCount": {
+      "value": null
+    },
+    "AZ_SparkPool_CacheSize": {
+      "value": null
+    },
+    "AZ_SynapseWorkspace_DecicatedSQL_Pool_SKU": {
+      "value": null
+    },
+    "AZ_SynapseWorkspace_DecicatedSQL_Pool_Capacity": {
+      "value": null
+    },
+    "AZ_SynapseWorkspace_DecicatedSQL_MaxSize": {
+      "value": null
+    },
+    "AZ_Resource_Location_Formatted":{
+      "value": null
+    },
+    "AZ_KeyVault_Name": {
+      "value": null
+    },
+    "AZ_KeyVault_Sku": {
+      "value": null
+    },
+    "AZ_KeyVault_Family": {
+      "value": null
+    },
+    "AZ_KeyVault_TenantId": {
+      "value": null
+    },
+    "AZ_KeyVault_EnabledForDeployment": {
+      "value": null
+    },
+    "AZ_KeyVault_EnabledForTemplateDeployment": {
+      "value": null
+    },
+    "AZ_KeyVault_EnabledForDiskEncryption": {
+      "value": null
+    },
+    "AZ_KeyVault_EnabledForRBACAuthorization": {
+      "value": null
+    },
+    "AZ_KeyVault_Public_Network_Access": {
+      "value": null
+    },
+    "AZ_KeyVault_SoftDelete_Enabled": {
+      "value": null
+    },
+    "AZ_KeyVault_SoftDelete_RetentionDays": {
+      "value": null
+    }
+  }
+}

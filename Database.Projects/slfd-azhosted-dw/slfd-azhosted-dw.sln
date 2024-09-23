@@ -1,0 +1,27 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35312.102
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "slfd-azhosted-dw", "slfd-azhosted-dw.sqlproj", "{9A8BB07E-D68D-421D-929C-0A9CC5BF91E9}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9A8BB07E-D68D-421D-929C-0A9CC5BF91E9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9A8BB07E-D68D-421D-929C-0A9CC5BF91E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9A8BB07E-D68D-421D-929C-0A9CC5BF91E9}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{9A8BB07E-D68D-421D-929C-0A9CC5BF91E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9A8BB07E-D68D-421D-929C-0A9CC5BF91E9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9A8BB07E-D68D-421D-929C-0A9CC5BF91E9}.Release|Any CPU.Deploy.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B5D04C02-4700-42CF-AD54-5CA22021ABE6}
+	EndGlobalSection
+EndGlobal

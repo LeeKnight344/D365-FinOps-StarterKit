@@ -1,0 +1,3 @@
+﻿CREATE SCHEMA [d365]
+    AUTHORIZATION [dbo];
+

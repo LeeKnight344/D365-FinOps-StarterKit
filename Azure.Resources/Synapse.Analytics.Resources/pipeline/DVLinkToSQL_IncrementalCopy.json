@@ -1,0 +1,441 @@
+{
+	"name": "DVLinkToSQL_IncrementalCopy",
+	"properties": {
+		"activities": [
+			{
+				"name": "CopyAndMerge",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Source_NewDataToCopy",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@if(greater(activity('Source_NewDataToCopy').output.resultSetCount,0), activity('Source_NewDataToCopy').output.resultSets[0].rows, variables('Empty'))",
+						"type": "Expression"
+					},
+					"batchCount": 8,
+					"activities": [
+						{
+							"name": "CopyTableData",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [
+								{
+									"name": "tablename",
+									"value": "@item().tablename"
+								}
+							],
+							"typeProperties": {
+								"source": {
+									"type": "AzureSqlSource",
+									"sqlReaderQuery": {
+										"value": "@item().selectquery",
+										"type": "Expression"
+									},
+									"queryTimeout": "02:00:00",
+									"partitionOption": "None"
+								},
+								"sink": {
+									"type": "AzureSqlSink",
+									"preCopyScript": {
+										"value": "declare @tablename nvarchar(100) = '@{item().tablename}';\ndeclare @schema nvarchar(10) =  '@{item().tableschema}';\ndeclare @columnnames nvarchar(max) = '@{item().datatypes}';\ndeclare @newdatetimemarker datetime2 = '@{item().newdatetimemarker}';\ndeclare @pipelinerunId nvarchar(100) = '@{pipeline().RunId}';\ndeclare @lastdatetimemarker nvarchar(100) = '@{item().lastdatetimemarker}';\n\nexec [dvtosql].target_preDataCopy @pipelinerunId, @schema, @tablename, @columnnames, @lastdatetimemarker,  @newdatetimemarker",
+										"type": "Expression"
+									},
+									"writeBehavior": "insert",
+									"sqlWriterUseTableLock": true,
+									"disableMetricsCollection": false
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "DV_Incremental_Copy_Source32",
+									"type": "DatasetReference",
+									"parameters": {
+										"DbServer": {
+											"value": "@pipeline().parameters.SourceDbServer",
+											"type": "Expression"
+										},
+										"DbName": {
+											"value": "@pipeline().parameters.SourceDbName",
+											"type": "Expression"
+										},
+										"TableName": {
+											"value": "@{item().tablename}",
+											"type": "Expression"
+										}
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "DV_Incremental_Copy_Target32",
+									"type": "DatasetReference",
+									"parameters": {
+										"DbServer": {
+											"value": "@pipeline().parameters.TargetDbServer",
+											"type": "Expression"
+										},
+										"DbName": {
+											"value": "@pipeline().parameters.TargetDbName",
+											"type": "Expression"
+										},
+										"Schema": {
+											"value": "@pipeline().parameters.TargetSchema",
+											"type": "Expression"
+										},
+										"TableName": {
+											"value": "_new_@{item().tablename}",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						},
+						{
+							"name": "Dedup_and_Merge",
+							"type": "Script",
+							"dependsOn": [
+								{
+									"activity": "CopyTableData",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [
+								{
+									"name": "tablename",
+									"value": "@item().tablename"
+								}
+							],
+							"linkedServiceName": {
+								"referenceName": "Target_SQL_Database",
+								"type": "LinkedServiceReference",
+								"parameters": {
+									"TargetDbServer": {
+										"value": "@pipeline().parameters.TargetDbServer",
+										"type": "Expression"
+									},
+									"TargetDbName": {
+										"value": "@pipeline().parameters.TargetDbName",
+										"type": "Expression"
+									}
+								}
+							},
+							"typeProperties": {
+								"scripts": [
+									{
+										"type": "NonQuery",
+										"text": {
+											"value": "declare @tablename nvarchar(100) = '@{item().tablename}';\ndeclare @schema nvarchar(10) =  '@{item().tableschema}';\ndeclare @newdatetimemarker datetime2 = '@{item().newdatetimemarker}';\ndeclare @debug_mode bit = 0\n\nexec [dvtosql].target_dedupAndMerge @tablename, @schema, @newdatetimemarker, @debug_mode",
+											"type": "Expression"
+										}
+									}
+								],
+								"scriptBlockExecutionTimeout": "02:00:00",
+								"logSettings": {
+									"logDestination": "ActivityOutput"
+								}
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "CreateUpdateSourceMetadata",
+				"type": "IfCondition",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@pipeline().parameters.GenerateSourceMetadata",
+						"type": "Expression"
+					},
+					"ifTrueActivities": [
+						{
+							"name": "CreateUpdateMetadata",
+							"type": "Script",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"linkedServiceName": {
+								"referenceName": "Source_SQL_Database",
+								"type": "LinkedServiceReference",
+								"parameters": {
+									"SourceDbServer": {
+										"value": "@pipeline().parameters.SourceDbServer",
+										"type": "Expression"
+									},
+									"SourceDbName": {
+										"value": "@pipeline().parameters.SourceDbName",
+										"type": "Expression"
+									}
+								}
+							},
+							"typeProperties": {
+								"scripts": [
+									{
+										"type": "Query",
+										"text": {
+											"value": "declare @StorageDS nvarchar(1000) = '@{pipeline().parameters.StorageDataLocation}';\ndeclare @sourcechema nvarchar(100) = '@{pipeline().parameters.SourceSchema}'\ndeclare @incrementalCSV int = @{if(pipeline().parameters.IncrementalCSV,1,0)};\ndeclare @add_EDL_AuditColumns int = @{if(pipeline().parameters.Add_EDL_AuditColumns,1,0)};\ndeclare @SaaSToken nvarchar(1000) = ''\n\ndeclare @storageDSUriScheme nvarchar(100) = 'https:'; \ndeclare @externalds_name nvarchar(1000);\n\ndeclare @rowsetoptions nvarchar(1000) = ''; -- ', ROWSET_OPTIONS =''{\"READ_OPTIONS\":[\"ALLOW_INCONSISTENT_READS\"]}''';\n\ndeclare @remove_mserp__prefix int = @{if(pipeline().parameters.Remove_mserp__prefix,1,0)};\n\ndeclare @translate_enums int = @{if(pipeline().parameters.translate_enums,1,0)};\n\ndeclare @translate_BYOD_enums int = @{if(pipeline().parameters.translate_BYOD_enums,1,0)};\n\n-- Calling sp setupExternalDataSource to create database scope credential and external datasource if does not exists\nexec dvtosql.source_SetupExternalDataSource @StorageDS= @StorageDS, @SaaSToken = @SaaSToken, @storageDSUriScheme= @storageDSUriScheme, @externalds_name = @externalds_name Output;\n\ndeclare @modeljson nvarchar(max), @enumtranslation nvarchar(max);\n\nexec dvtosql.source_GetCdmMetadata @externaldatasource = @externalds_name , @modeljson =@modeljson Output, @enumtranslation=@enumtranslation Output;\n\n-- call sp source_createOrAlterViews to create openrowset views on SQL endpoint that supports Data virtualization \nexec dvtosql.source_createOrAlterViews @externalds_name, @modeljson, @enumtranslation, @incrementalCSV, @add_EDL_AuditColumns, @sourcechema, @rowsetoptions, @translate_enums, @remove_mserp__prefix, @translate_BYOD_enums\n\t",
+											"type": "Expression"
+										}
+									}
+								],
+								"scriptBlockExecutionTimeout": "02:00:00"
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "Source_GetSQLMetadata",
+				"type": "Script",
+				"dependsOn": [
+					{
+						"activity": "CreateUpdateSourceMetadata",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"linkedServiceName": {
+					"referenceName": "Source_SQL_Database",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"SourceDbServer": {
+							"value": "@pipeline().parameters.SourceDbServer",
+							"type": "Expression"
+						},
+						"SourceDbName": {
+							"value": "@pipeline().parameters.SourceDbName",
+							"type": "Expression"
+						}
+					}
+				},
+				"typeProperties": {
+					"scripts": [
+						{
+							"type": "Query",
+							"text": {
+								"value": "declare @sourceSchema nvarchar(10)= '@{pipeline().parameters.SourceSchema}'\n\ndeclare @sqlmetadata nvarchar(max) = (select sqlmetadata from dvtosql.source_GetSQLMetadataFromSQL(@sourceSchema));\n\nselect @sqlmetadata as sqlmetadata\n\t",
+								"type": "Expression"
+							}
+						}
+					],
+					"scriptBlockExecutionTimeout": "02:00:00",
+					"logSettings": {
+						"logDestination": "ActivityOutput"
+					}
+				}
+			},
+			{
+				"name": "Target_GetSetSQLMetadata",
+				"type": "Script",
+				"dependsOn": [
+					{
+						"activity": "Source_GetSQLMetadata",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"linkedServiceName": {
+					"referenceName": "Target_SQL_Database",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"TargetDbServer": {
+							"value": "@pipeline().parameters.TargetDbServer",
+							"type": "Expression"
+						},
+						"TargetDbName": {
+							"value": "@pipeline().parameters.TargetDbName",
+							"type": "Expression"
+						}
+					}
+				},
+				"typeProperties": {
+					"scripts": [
+						{
+							"type": "Query",
+							"text": {
+								"value": "declare @incrementalCSV int = @{if(pipeline().parameters.IncrementalCSV,1,0)};\ndeclare @add_EDL_AuditColumns int = @{if(pipeline().parameters.Add_EDL_AuditColumns,1,0)};\ndeclare @targetschema nvarchar(10) = '@{pipeline().parameters.TargetSchema}';\ndeclare @StorageDS nvarchar(1000) = '@{pipeline().parameters.StorageDataLocation}';\ndeclare @sqlmetadata nvarchar(max) = '@{activity('Source_GetSQLMetadata').output.resultSets[0].rows[0].sqlmetadata}';\n\ndeclare @datetime_markercolumn nvarchar(100)= 'SinkModifiedOn'; \n\nif (@incrementalCSV = 1 or @add_EDL_AuditColumns = 1)\n\tset @datetime_markercolumn = 'DataLakeModified_DateTime';\n\n\n-- create control table, merge new table data and return the control table as Json \ndeclare @controltable nvarchar(max);\n\nexec dvtosql.target_GetSetSQLMetadata @targetschema, @StorageDS, @sqlmetadata, @datetime_markercolumn=@datetime_markercolumn,  @controltable = @controltable OUTPUT;\n\nselect @controltable as controltable",
+								"type": "Expression"
+							}
+						}
+					],
+					"scriptBlockExecutionTimeout": "02:00:00",
+					"logSettings": {
+						"logDestination": "ActivityOutput"
+					}
+				}
+			},
+			{
+				"name": "Source_NewDataToCopy",
+				"type": "Script",
+				"dependsOn": [
+					{
+						"activity": "Target_GetSetSQLMetadata",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"linkedServiceName": {
+					"referenceName": "Source_SQL_Database",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"SourceDbServer": {
+							"value": "@pipeline().parameters.SourceDbServer",
+							"type": "Expression"
+						},
+						"SourceDbName": {
+							"value": "@pipeline().parameters.SourceDbName",
+							"type": "Expression"
+						}
+					}
+				},
+				"typeProperties": {
+					"scripts": [
+						{
+							"type": "Query",
+							"text": {
+								"value": "declare @incrementalCSV int = @{if(pipeline().parameters.IncrementalCSV,1,0)};\ndeclare @controltable nvarchar(max) ='@{activity('Target_GetSetSQLMetadata').output.resultSets[0].rows}';\ndeclare @sourceschema nvarchar(10) = '@{pipeline().parameters.SourceSchema}';\ndeclare @StorageDS nvarchar(1000) = '@{pipeline().parameters.StorageDataLocation}';\n\ndeclare  @environment nvarchar(1000) = (select value from string_split(@StorageDS, '/', 1) where ordinal = 4)\ndeclare  @externalds_name nvarchar(1000)  = @environment\n\nexec dvtosql.source_GetNewDataToCopy  @controltable, @sourceschema, @environment, @incrementalCSV, @externalds_name\n",
+								"type": "Expression"
+							}
+						}
+					],
+					"scriptBlockExecutionTimeout": "02:00:00",
+					"logSettings": {
+						"logDestination": "ActivityOutput"
+					}
+				}
+			}
+		],
+		"concurrency": 1,
+		"parameters": {
+			"SourceDbName": {
+				"type": "string",
+				"defaultValue": "slfd-dev-sdw"
+			},
+			"SourceDbServer": {
+				"type": "string",
+				"defaultValue": "slfd-dev-sw-01-ondemand.sql.azuresynapse.net"
+			},
+			"TargetDbServer": {
+				"type": "string",
+				"defaultValue": "slfd-dev-sw-01.sql.azuresynapse.net"
+			},
+			"TargetDbName": {
+				"type": "string",
+				"defaultValue": "slfddedicateddb"
+			},
+			"TargetSchema": {
+				"type": "string",
+				"defaultValue": "dbo"
+			},
+			"StorageDataLocation": {
+				"type": "string",
+				"defaultValue": "https://slfddevsa01.dfs.core.windows.net/dataverse-powerplatfor-unq73ca9dab7c5cef11bfdd7c1e52030/"
+			},
+			"SourceSchema": {
+				"type": "string",
+				"defaultValue": "dbo"
+			},
+			"IncrementalCSV": {
+				"type": "bool",
+				"defaultValue": true
+			},
+			"Add_EDL_AuditColumns": {
+				"type": "bool",
+				"defaultValue": false
+			},
+			"GenerateSourceMetadata": {
+				"type": "bool",
+				"defaultValue": true
+			},
+			"Remove_mserp__prefix": {
+				"type": "bool",
+				"defaultValue": false
+			},
+			"translate_enums": {
+				"type": "bool",
+				"defaultValue": false
+			},
+			"translate_BYOD_enums": {
+				"type": "bool",
+				"defaultValue": false
+			}
+		},
+		"variables": {
+			"Empty": {
+				"type": "Array"
+			},
+			"controltable": {
+				"type": "String"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2024-09-21T19:51:17Z"
+	},
+	"type": "Microsoft.Synapse/workspaces/pipelines"
+}

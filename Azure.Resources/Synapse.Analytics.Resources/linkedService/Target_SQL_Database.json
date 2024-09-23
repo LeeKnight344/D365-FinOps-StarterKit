@@ -1,0 +1,33 @@
+{
+	"name": "Target_SQL_Database",
+	"properties": {
+		"parameters": {
+			"TargetDbServer": {
+				"type": "string",
+				"defaultValue": "slfd-dev-sw-01.sql.azuresynapse.net"
+			},
+			"TargetDbName": {
+				"type": "string",
+				"defaultValue": "slfddedicateddb"
+			}
+		},
+		"annotations": [],
+		"type": "AzureSqlDatabase",
+		"typeProperties": {
+			"connectionString": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=@{linkedService().TargetDbServer};Initial Catalog=@{linkedService().TargetDbName};User ID=slfddevsqladmin",
+			"password": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"referenceName": "slfd_kv",
+					"type": "LinkedServiceReference"
+				},
+				"secretName": "HostedDatabasePassword"
+			}
+		},
+		"connectVia": {
+			"referenceName": "AutoResolveIntegrationRuntime",
+			"type": "IntegrationRuntimeReference"
+		}
+	},
+	"type": "Microsoft.Synapse/workspaces/linkedservices"
+}
