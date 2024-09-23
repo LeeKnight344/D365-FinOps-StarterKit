@@ -141,21 +141,6 @@ This repository has been developed with 2 primary branches and a release branch,
 
 13. Copy the `.yml` template `Azure.Resources/Synapse.Analytics.Resources/slfd-dw-deploy.yml` into the `workspace_publish` branch. Configure override parameters to match your data lake path and export method (Delta or CSV). Generate a deployment pipeline from the copied `.yml` to push workspace changes when published. Note that branch-based triggers are unavailable here—use Environment Approvals to control changes.
 
-    - Refer to: [Azure DevOps Approvals Documentation](https://learn.microsoft.com/en-us/azure/devops/pipelines/process/approvals?view=azure-devops&tabs=check-pass)
-
-### Default Parameters for the Synapse Pipeline:
-
-| Parameter Name             | Description                                             | Example                                                 |
-|----------------------------|---------------------------------------------------------|---------------------------------------------------------|
-| SourceDbServer              | Source Synapse Serverless DB server name                | d365analyticssynapse-ondemand.sql.azuresynapse.net       |
-| SourceDbName                | Source Synapse Serverless DB name                       | dataverse_analytics_orgf89b314a                         |
-| SourceSchema                | Source schema                                           | dbo                                                     |
-| SinkDbServer                | Sink DB Server name (On-premises or Azure Hosted)       | analytics-sql.database.windows.net                      |
-| SinkDbName                  | Sink DB name (On-premises or Azure Hosted)              | finopssynapsecopydb                                      |
-| SinkSchema                  | Sink schema                                             | dbo                                                     |
-| ImportType                  | Import Method: Delta Lake (`delta`) or Incremental (`csv`) | delta or csv                                            |
-| SourceContainer             | Synapse exported Data Container                         | finopsdata                                               |
-| SourceDeltaLakeTable        | Source Delta Lake Table Name                            | Account                                                  |
-| SourceFile                  | Incremental Source File Format (.csv, etc.)             | Account.csv                                              |
+    - Refer to: [Azure DevOps Approvals Documentation](https://learn.microsoft.com/en-us/azure/devops/pipelines/process/approvals?view=azure-devops&tabs=check-pass
 
 After deploying all these pipelines and artifacts, you should be able to perform efficient ETL and ELT processes with your FinOps data.
