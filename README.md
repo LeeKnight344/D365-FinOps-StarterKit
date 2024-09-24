@@ -142,5 +142,21 @@ This repository has been developed with 2 primary branches and a release branch,
 13. Copy the `.yml` template `Azure.Resources/Synapse.Analytics.Resources/slfd-dw-deploy.yml` into the `workspace_publish` branch. Configure override parameters to match your data lake path and export method (Delta or CSV). Generate a deployment pipeline from the copied `.yml` to push workspace changes when published. Note that branch-based triggers are unavailable here—use Environment Approvals to control changes.
 
     - Refer to: [Azure DevOps Approvals Documentation](https://learn.microsoft.com/en-us/azure/devops/pipelines/process/approvals?view=azure-devops&tabs=check-pass
+   
+14. Make sure to enter the correct pipeline parameters for your scenario, the details for each parameter can be seen below. These also need to be updated in the YML template for the Synapse - `AZ.SynapseLink-AzureHostedDB-builddeploy-armtask.yml`:
 
-After deploying all these pipelines and artifacts, you should be able to perform efficient ETL and ELT processes with your FinOps data.
+| Parameter name         | Description                                                                                                | Example                                                                                               |
+|------------------------|------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------|
+| SourceDbServer          | Source Synapse serverless DB server name                                                                   | d365analyticssynapse-ondemand.sql.azuresynapse.net                                                    |
+| SourceDbName            | Source Synapse serverless DB name                                                                          | dataverse_analytics_orgf89b314a                                                                        |
+| SourceSchema            | Source schema                                                                                              | dbo                                                                                                   |
+| TargetDbServer          | Target SQL/Synapse dedicated pool server name                                                              | d365-sa-lab-analytics.database.windows.net                                                            |
+| TargetDbName            | Target Synapse serverless DB name                                                                          | D365Data                                                                                              |
+| TargetSchema            | Target schema                                                                                              | dbo                                                                                                   |
+| StorageDataLocation     | Data container location in storage account                                                                 | https://d365analyticsincremental.dfs.core.windows.net/dataverse-analytics-orgf89b314a/                 |
+| IncrementalCSV          | Is Source Synapse link incremental CSV?                                                                    | Source Synapse link with incremental update CSV then true; Source Synapse link with delta then false   |
+| GenerateSourceMetadata  | Generate metadata on the source database when pipeline runs?                                               | Source Synapse link with incremental update CSV then true; Source Synapse link with delta then false   |
+| Remove_mserp__prefix    | Removes the `mserp_` prefix from the entity name and fields if virtual entities are being exported.         | true or false                                                                                         |
+| translate_enums         | Adds a column for each enum in the table (suffixed with `$label`) with the text value of the enum.          | true or false                                                                                         |
+| translate_BYOD_enums    | Changes the enum value from Dataverse to finance and operations enum value for BYOD migrations.             | true or false                                                                                         |
+
