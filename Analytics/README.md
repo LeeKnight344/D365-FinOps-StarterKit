@@ -184,7 +184,7 @@ Configuring approvals against environments is a good way to control releases int
 11. Make sure to enter the correct pipeline parameters for your scenario, the details for each parameter can be seen below. These also need to be updated in the YML template for the Synapse - `AZ.SynapseLink-AzureHostedDB-builddeploy-armtask.yml`:
 
 
-![alt text](SLFD.Screenshots\SynapsePipelineSample.png)
+![alt text](SLFD.Screenshots/SynapsePipelineSample.png)
 
 | Parameter name         | Description                                                                                                | Example                                                                                               |
 |------------------------|------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------|
