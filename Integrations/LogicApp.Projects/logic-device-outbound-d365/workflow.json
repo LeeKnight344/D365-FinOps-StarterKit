@@ -1,0 +1,372 @@
+{
+    "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "actions": {
+            "Compose": {
+                "inputs": "@triggerBody()?['contentData']",
+                "runAfter": {},
+                "type": "Compose"
+            },
+            "Parse_Device_Broadcast": {
+                "inputs": {
+                    "content": "@triggerBody()?['contentData']",
+                    "schema": {
+                        "properties": {
+                            "body": {
+                                "properties": {
+                                    "contentData": {
+                                        "properties": {
+                                            "BusinessUnitId": {
+                                                "type": "string"
+                                            },
+                                            "CorrelationId": {
+                                                "type": "string"
+                                            },
+                                            "Depth": {
+                                                "type": "integer"
+                                            },
+                                            "InitiatingUserAgent": {
+                                                "type": "string"
+                                            },
+                                            "InitiatingUserAzureActiveDirectoryObjectId": {
+                                                "type": "string"
+                                            },
+                                            "InitiatingUserId": {
+                                                "type": "string"
+                                            },
+                                            "InputParameters": {
+                                                "items": {
+                                                    "properties": {
+                                                        "key": {
+                                                            "type": "string"
+                                                        },
+                                                        "value": {
+                                                            "properties": {
+                                                                "Attributes": {
+                                                                    "items": {
+                                                                        "properties": {
+                                                                            "key": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "value": {
+                                                                                "type": "string"
+                                                                            }
+                                                                        },
+                                                                        "required": [
+                                                                            "key",
+                                                                            "value"
+                                                                        ],
+                                                                        "type": "object"
+                                                                    },
+                                                                    "type": "array"
+                                                                },
+                                                                "EntityState": {},
+                                                                "FormattedValues": {
+                                                                    "items": {
+                                                                        "properties": {
+                                                                            "key": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "value": {
+                                                                                "type": "string"
+                                                                            }
+                                                                        },
+                                                                        "required": [
+                                                                            "key",
+                                                                            "value"
+                                                                        ],
+                                                                        "type": "object"
+                                                                    },
+                                                                    "type": "array"
+                                                                },
+                                                                "Id": {
+                                                                    "type": "string"
+                                                                },
+                                                                "KeyAttributes": {
+                                                                    "type": "array"
+                                                                },
+                                                                "LogicalName": {
+                                                                    "type": "string"
+                                                                },
+                                                                "RelatedEntities": {
+                                                                    "type": "array"
+                                                                },
+                                                                "RowVersion": {},
+                                                                "__type": {
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "key",
+                                                        "value"
+                                                    ],
+                                                    "type": "object"
+                                                },
+                                                "type": "array"
+                                            },
+                                            "IsExecutingOffline": {
+                                                "type": "boolean"
+                                            },
+                                            "IsInTransaction": {
+                                                "type": "boolean"
+                                            },
+                                            "IsOfflinePlayback": {
+                                                "type": "boolean"
+                                            },
+                                            "IsolationMode": {
+                                                "type": "integer"
+                                            },
+                                            "MessageName": {
+                                                "type": "string"
+                                            },
+                                            "Mode": {
+                                                "type": "integer"
+                                            },
+                                            "OperationCreatedOn": {
+                                                "type": "string"
+                                            },
+                                            "OperationId": {
+                                                "type": "string"
+                                            },
+                                            "OrganizationId": {
+                                                "type": "string"
+                                            },
+                                            "OrganizationName": {
+                                                "type": "string"
+                                            },
+                                            "OutputParameters": {
+                                                "type": "array"
+                                            },
+                                            "OwningExtension": {
+                                                "properties": {
+                                                    "Id": {
+                                                        "type": "string"
+                                                    },
+                                                    "KeyAttributes": {
+                                                        "type": "array"
+                                                    },
+                                                    "LogicalName": {
+                                                        "type": "string"
+                                                    },
+                                                    "Name": {},
+                                                    "RowVersion": {}
+                                                },
+                                                "type": "object"
+                                            },
+                                            "ParentContext": {},
+                                            "PostEntityImages": {
+                                                "type": "array"
+                                            },
+                                            "PreEntityImages": {
+                                                "type": "array"
+                                            },
+                                            "PrimaryEntityId": {
+                                                "type": "string"
+                                            },
+                                            "PrimaryEntityName": {
+                                                "type": "string"
+                                            },
+                                            "RequestId": {
+                                                "type": "string"
+                                            },
+                                            "SecondaryEntityName": {
+                                                "type": "string"
+                                            },
+                                            "SharedVariables": {
+                                                "items": {
+                                                    "properties": {
+                                                        "key": {
+                                                            "type": "string"
+                                                        },
+                                                        "value": {
+                                                            "type": "boolean"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "key",
+                                                        "value"
+                                                    ],
+                                                    "type": "object"
+                                                },
+                                                "type": "array"
+                                            },
+                                            "Stage": {
+                                                "type": "integer"
+                                            },
+                                            "UserAzureActiveDirectoryObjectId": {
+                                                "type": "string"
+                                            },
+                                            "UserId": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "contentType": {
+                                        "type": "string"
+                                    },
+                                    "correlationId": {
+                                        "type": "string"
+                                    },
+                                    "deliveryCount": {
+                                        "type": "integer"
+                                    },
+                                    "enqueuedSequenceNumber": {
+                                        "type": "integer"
+                                    },
+                                    "enqueuedTimeUtc": {
+                                        "type": "string"
+                                    },
+                                    "lockToken": {
+                                        "type": "string"
+                                    },
+                                    "lockedUntilUtc": {
+                                        "type": "string"
+                                    },
+                                    "messageId": {
+                                        "type": "string"
+                                    },
+                                    "scheduledEnqueueTimeUtc": {
+                                        "type": "string"
+                                    },
+                                    "sequenceNumber": {
+                                        "type": "integer"
+                                    },
+                                    "timeToLive": {
+                                        "type": "string"
+                                    },
+                                    "userProperties": {
+                                        "properties": {
+                                            "http://schemas.microsoft.com/xrm/2011/Claims/EntityLogicalName": {
+                                                "type": "string"
+                                            },
+                                            "http://schemas.microsoft.com/xrm/2011/Claims/InitiatingUser": {},
+                                            "http://schemas.microsoft.com/xrm/2011/Claims/InitiatingUserAgent": {
+                                                "type": "string"
+                                            },
+                                            "http://schemas.microsoft.com/xrm/2011/Claims/Organization": {
+                                                "type": "string"
+                                            },
+                                            "http://schemas.microsoft.com/xrm/2011/Claims/RequestName": {
+                                                "type": "string"
+                                            },
+                                            "http://schemas.microsoft.com/xrm/2011/Claims/User": {}
+                                        },
+                                        "type": "object"
+                                    }
+                                },
+                                "type": "object"
+                            },
+                            "headers": {}
+                        },
+                        "type": "object"
+                    }
+                },
+                "runAfter": {
+                    "Compose": [
+                        "SUCCEEDED"
+                    ]
+                },
+                "type": "ParseJson"
+            },
+            "Send_message": {
+                "inputs": {
+                    "parameters": {
+                        "entityName": "sbt-integration-d365-outbound-completed",
+                        "message": {
+                            "contentData": "@body('Transform_Customer_Data_Event_XML_To_Canonical_Message')",
+                            "contentType": "application/xml",
+                            "userProperties": {
+                                "BroadcastIdentifier": "DeviceBroadcast",
+                                "CorrelationId": "@{triggerBody()?['messageId']}",
+                                "SourceSystem": "D365"
+                            }
+                        }
+                    },
+                    "serviceProviderConfiguration": {
+                        "connectionName": "serviceBus",
+                        "operationId": "sendMessage",
+                        "serviceProviderId": "/serviceProviders/serviceBus"
+                    }
+                },
+                "runAfter": {
+                    "XML_Validation": [
+                        "SUCCEEDED"
+                    ]
+                },
+                "type": "ServiceProvider"
+            },
+            "Transform_Customer_Data_Event_JSON_into_XML": {
+                "inputs": {
+                    "content": "@xml(json(concat('{\"root\": ', string(body('Parse_Device_Broadcast')), '}')))",
+                    "map": {
+                        "name": "GenericDataEventTransformer.xslt",
+                        "source": "LogicApp"
+                    }
+                },
+                "kind": "DataMapper",
+                "runAfter": {
+                    "Parse_Device_Broadcast": [
+                        "SUCCEEDED"
+                    ]
+                },
+                "type": "Xslt"
+            },
+            "Transform_Customer_Data_Event_XML_To_Canonical_Message": {
+                "inputs": {
+                    "content": "@body('Transform_Customer_Data_Event_JSON_into_XML')",
+                    "map": {
+                        "name": "D365_DeviceBroadcast_To_Canonical.xslt",
+                        "source": "LogicApp"
+                    }
+                },
+                "kind": "DataMapper",
+                "runAfter": {
+                    "Transform_Customer_Data_Event_JSON_into_XML": [
+                        "SUCCEEDED"
+                    ]
+                },
+                "type": "Xslt"
+            },
+            "XML_Validation": {
+                "inputs": {
+                    "content": "@body('Transform_Customer_Data_Event_XML_To_Canonical_Message')",
+                    "schema": {
+                        "name": "Canonical_DeviceBroadcast.xsd",
+                        "source": "LogicApp"
+                    }
+                },
+                "runAfter": {
+                    "Transform_Customer_Data_Event_XML_To_Canonical_Message": [
+                        "SUCCEEDED"
+                    ]
+                },
+                "type": "XmlValidation"
+            }
+        },
+        "contentVersion": "1.0.0.0",
+        "outputs": {},
+        "triggers": {
+            "When_messages_are_available_in_a_topic": {
+                "inputs": {
+                    "parameters": {
+                        "isSessionsEnabled": false,
+                        "subscriptionName": "sbs-devices",
+                        "topicName": "sbt-integration-d365-outbound"
+                    },
+                    "serviceProviderConfiguration": {
+                        "connectionName": "serviceBus",
+                        "operationId": "receiveTopicMessages",
+                        "serviceProviderId": "/serviceProviders/serviceBus"
+                    }
+                },
+                "splitOn": "@triggerOutputs()?['body']",
+                "type": "ServiceProvider"
+            }
+        }
+    },
+    "kind": "Stateful"
+}

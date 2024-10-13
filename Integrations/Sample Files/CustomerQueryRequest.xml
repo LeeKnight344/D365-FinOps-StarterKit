@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CustomerQueryRequest>
+  <Context>
+    <SourceSystem>SourceSystem1</SourceSystem>
+    <BroadcastType>QueryRequest</BroadcastType>
+    <BroadcastIdentifier>CustomerQueryRequest</BroadcastIdentifier>
+    <SentAt>1900-01-01T01:01:01+00:00</SentAt>
+  </Context>
+  <CustomerID>100000</CustomerID>
+</CustomerQueryRequest>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:userCSharp="http://schemas.microsoft.com/BizTalk/2003/userCSharp" xmlns:var="http://schemas.microsoft.com/BizTalk/2003/var" attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:element name="SystemUserQueryRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="Context">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="SourceSystem" type="xs:string" />
+							<xs:element name="BroadcastType" type="xs:string" />
+							<xs:element name="BroadcastIdentifier" type="xs:string" />
+							<xs:element name="SentAt" type="xs:dateTime" />
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="UserIdentifier" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

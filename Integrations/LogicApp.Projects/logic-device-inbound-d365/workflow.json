@@ -1,0 +1,541 @@
+{
+    "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "actions": {
+            "Broadcast_Type": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "Broadcast Type",
+                            "type": "string",
+                            "value": "@triggerBody()?['userProperties']['BroadcastType']"
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Parse_Bearer_Token": [
+                        "SUCCEEDED"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Find_Matching_Dataverse_Record": {
+                "inputs": {
+                    "headers": {
+                        "Authorization": "Bearer @{body('Parse_Bearer_Token')?['access_token']}"
+                    },
+                    "method": "GET",
+                    "uri": "@{parameters('AZ_APIS_Dataverse_URL')}api/data/v9.1/mserp_a365deviceentities?$filter=mserp_msauto_devicenumber eq '@{json(xml(triggerBody()?['contentData']))['DeviceBroadcast']['DeviceID']}'"
+                },
+                "runAfter": {
+                    "Broadcast_Type": [
+                        "SUCCEEDED"
+                    ]
+                },
+                "runtimeConfiguration": {
+                    "contentTransfer": {
+                        "transferMode": "Chunked"
+                    }
+                },
+                "type": "Http"
+            },
+            "Get_Dataverse_Bearer_Token": {
+                "inputs": {
+                    "body": "grant_type=client_credentials\n&client_id=@{parameters('AZ_APIS_Dataverse_Client_ID')}\n&client_secret=@{parameters('AZ_APIS_Dataverse_Client_Secret')}\n&resource=@{parameters('AZ_APIS_Dataverse_URL')}",
+                    "headers": {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    "method": "POST",
+                    "uri": "https://login.microsoftonline.com/@{parameters('AZ_Tenant_ID')}/oauth2/token"
+                },
+                "runAfter": {},
+                "runtimeConfiguration": {
+                    "contentTransfer": {
+                        "transferMode": "Chunked"
+                    }
+                },
+                "type": "Http"
+            },
+            "Parse_Bearer_Token": {
+                "inputs": {
+                    "content": "@body('Get_Dataverse_Bearer_Token')",
+                    "schema": {
+                        "properties": {
+                            "access_token": {
+                                "type": "string"
+                            },
+                            "expires_in": {
+                                "type": "string"
+                            },
+                            "expires_on": {
+                                "type": "string"
+                            },
+                            "ext_expires_in": {
+                                "type": "string"
+                            },
+                            "not_before": {
+                                "type": "string"
+                            },
+                            "resource": {
+                                "type": "string"
+                            },
+                            "token_type": {
+                                "type": "string"
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "runAfter": {
+                    "Get_Dataverse_Bearer_Token": [
+                        "SUCCEEDED"
+                    ]
+                },
+                "type": "ParseJson"
+            },
+            "Parse_JSON": {
+                "inputs": {
+                    "content": "@body('Find_Matching_Dataverse_Record')",
+                    "schema": {
+                        "properties": {
+                            "@@odata.context": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "value": {
+                                "items": {
+                                    "properties": {
+                                        "_mserp_fk_synthdevice_id_value": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_a365_deviceexteriorid": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_a365_deviceinteriorid": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_a365_drivetraintypeid": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_a365_enginedisplacement": {
+                                            "type": [
+                                                "integer",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_a365_enginehp": {
+                                            "type": [
+                                                "integer",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_a365_enginekw": {
+                                            "type": [
+                                                "integer",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_a365_enginetorque": {
+                                            "type": [
+                                                "integer",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_a365_environmentclassid": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_a365_fueltypeid": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_a365_noofdoors": {
+                                            "type": [
+                                                "integer",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_a365_noofpassengers": {
+                                            "type": [
+                                                "integer",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_a365_privatenumber": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_a365_registrationplatetypeid": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_a365_transmission": {
+                                            "type": [
+                                                "integer",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_a365_transmissiontypeid": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_a365deviceentityid": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_businessoperation": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_devicebrand": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_deviceclass": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_deviceengine": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_devicemodel": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_devicemodelcode": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_devicestate": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_devicetype": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_devicevariant": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_msauto_chassisnumber": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_msauto_description": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_msauto_devicenumber": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_msauto_name": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_msauto_registrationnumber": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_msauto_vin": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_msauto_year": {
+                                            "type": [
+                                                "integer",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_statecode": {
+                                            "type": [
+                                                "integer",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_statuscode": {
+                                            "type": [
+                                                "integer",
+                                                "null"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "mserp_a365_privatenumber",
+                                        "mserp_msauto_chassisnumber",
+                                        "mserp_msauto_devicenumber",
+                                        "mserp_msauto_registrationnumber",
+                                        "mserp_msauto_vin",
+                                        "mserp_msauto_year",
+                                        "mserp_devicebrand",
+                                        "mserp_businessoperation",
+                                        "mserp_deviceclass",
+                                        "mserp_devicemodelcode",
+                                        "mserp_devicemodel",
+                                        "mserp_devicestate",
+                                        "mserp_devicetype",
+                                        "mserp_statecode",
+                                        "mserp_statuscode",
+                                        "mserp_msauto_description",
+                                        "mserp_msauto_name",
+                                        "mserp_devicevariant",
+                                        "mserp_a365_drivetraintypeid",
+                                        "mserp_a365_environmentclassid",
+                                        "mserp_a365_fueltypeid",
+                                        "mserp_a365_registrationplatetypeid",
+                                        "mserp_a365_transmissiontypeid",
+                                        "mserp_a365_transmission",
+                                        "mserp_deviceengine",
+                                        "mserp_a365_enginedisplacement",
+                                        "mserp_a365_enginehp",
+                                        "mserp_a365_enginekw",
+                                        "mserp_a365_enginetorque",
+                                        "mserp_a365_noofpassengers",
+                                        "mserp_a365_noofdoors",
+                                        "mserp_a365_deviceinteriorid",
+                                        "mserp_a365_deviceexteriorid",
+                                        "_mserp_fk_synthdevice_id_value",
+                                        "mserp_a365deviceentityid"
+                                    ],
+                                    "type": "object"
+                                },
+                                "type": "array"
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "runAfter": {
+                    "Find_Matching_Dataverse_Record": [
+                        "SUCCEEDED"
+                    ]
+                },
+                "type": "ParseJson"
+            },
+            "Switch": {
+                "cases": {
+                    "Create_Record": {
+                        "actions": {
+                            "Create_Dataverse_Record": {
+                                "inputs": {
+                                    "body": {
+                                        "mserp_devicebrand": "@{json(xml(triggerBody()?['contentData']))['DeviceBroadcast']['DeviceBrand']}",
+                                        "mserp_devicestate": "@{json(xml(triggerBody()?['contentData']))['DeviceBroadcast']['DeviceState']}",
+                                        "mserp_devicetype": "@{json(xml(triggerBody()?['contentData']))['DeviceBroadcast']['DeviceType']}",
+                                        "mserp_msauto_description": "@{json(xml(triggerBody()?['contentData']))['DeviceBroadcast']['DeviceDescription']}",
+                                        "mserp_msauto_devicenumber": "@{json(xml(triggerBody()?['contentData']))['DeviceBroadcast']['DeviceID']}",
+                                        "mserp_msauto_registrationnumber": "@{json(xml(triggerBody()?['contentData']))['DeviceBroadcast']['RegistrationNumber']}"
+                                    },
+                                    "headers": {
+                                        "Authorization": "Bearer @{body('Parse_Bearer_Token')?['access_token']}",
+                                        "Content-Type": "application/json; charset=utf-8",
+                                        "OData-MaxVersion": "4.0",
+                                        "OData-Version": "4.0"
+                                    },
+                                    "method": "POST",
+                                    "uri": "@{parameters('AZ_APIS_Dataverse_URL')}api/data/v9.1/mserp_a365deviceentities"
+                                },
+                                "runtimeConfiguration": {
+                                    "contentTransfer": {
+                                        "transferMode": "Chunked"
+                                    }
+                                },
+                                "type": "Http"
+                            },
+                            "Terminate_-_Record_Created": {
+                                "inputs": {
+                                    "runStatus": "Succeeded"
+                                },
+                                "runAfter": {
+                                    "Create_Dataverse_Record": [
+                                        "SUCCEEDED"
+                                    ]
+                                },
+                                "type": "Terminate"
+                            }
+                        },
+                        "case": "Create"
+                    },
+                    "Delete_Record": {
+                        "actions": {
+                            "For_each_-_Delete": {
+                                "actions": {
+                                    "Delete_Dataverse_Record": {
+                                        "inputs": {
+                                            "headers": {
+                                                "Authorization": "Bearer @{body('Parse_Bearer_Token')?['access_token']}",
+                                                "Content-Type": "application/json",
+                                                "OData-MaxVersion": "4.0",
+                                                "OData-Version": "4.0"
+                                            },
+                                            "method": "DELETE",
+                                            "uri": "@{parameters('AZ_APIS_Dataverse_URL')}api/data/v9.1/mserp_a365deviceentities(@{item()?['mserp_a365deviceentityid']})"
+                                        },
+                                        "runtimeConfiguration": {
+                                            "contentTransfer": {
+                                                "transferMode": "Chunked"
+                                            }
+                                        },
+                                        "type": "Http"
+                                    }
+                                },
+                                "foreach": "@outputs('Parse_JSON')?['body']?['value']",
+                                "type": "foreach"
+                            },
+                            "Terminate_-_Record_Deleted": {
+                                "inputs": {
+                                    "runStatus": "Succeeded"
+                                },
+                                "runAfter": {
+                                    "For_each_-_Delete": [
+                                        "SUCCEEDED"
+                                    ]
+                                },
+                                "type": "Terminate"
+                            }
+                        },
+                        "case": "Delete"
+                    },
+                    "Update_Record": {
+                        "actions": {
+                            "For_each_-_Update": {
+                                "actions": {
+                                    "Patch_Dataverse_Record": {
+                                        "inputs": {
+                                            "body": {
+                                                "mserp_devicebrand": "@{json(xml(triggerBody()?['contentData']))['DeviceBroadcast']['DeviceBrand']}",
+                                                "mserp_devicestate": "@{json(xml(triggerBody()?['contentData']))['DeviceBroadcast']['DeviceState']}",
+                                                "mserp_devicetype": "@{json(xml(triggerBody()?['contentData']))['DeviceBroadcast']['DeviceType']}",
+                                                "mserp_msauto_description": "@{json(xml(triggerBody()?['contentData']))['DeviceBroadcast']['DeviceDescription']}",
+                                                "mserp_msauto_registrationnumber": "@{json(xml(triggerBody()?['contentData']))['DeviceBroadcast']['RegistrationNumber']}"
+                                            },
+                                            "headers": {
+                                                "Authorization": "Bearer @{body('Parse_Bearer_Token')?['access_token']}",
+                                                "Content-Type": "application/json",
+                                                "If-Match": "*",
+                                                "OData-MaxVersion": "4.0",
+                                                "OData-Version": "4.0",
+                                                "Prefer": "return=representation"
+                                            },
+                                            "method": "PATCH",
+                                            "uri": "@{parameters('AZ_APIS_Dataverse_URL')}api/data/v9.1/mserp_a365deviceentities(@{item()?['mserp_a365deviceentityid']})"
+                                        },
+                                        "runtimeConfiguration": {
+                                            "contentTransfer": {
+                                                "transferMode": "Chunked"
+                                            }
+                                        },
+                                        "type": "Http"
+                                    }
+                                },
+                                "foreach": "@outputs('Parse_JSON')?['body']?['value']",
+                                "type": "foreach"
+                            },
+                            "Terminate_-_Record_Updated": {
+                                "inputs": {
+                                    "runStatus": "Succeeded"
+                                },
+                                "runAfter": {
+                                    "For_each_-_Update": [
+                                        "SUCCEEDED"
+                                    ]
+                                },
+                                "type": "Terminate"
+                            }
+                        },
+                        "case": "Update"
+                    }
+                },
+                "default": {
+                    "actions": {}
+                },
+                "expression": "@variables('Broadcast Type')",
+                "runAfter": {
+                    "Parse_JSON": [
+                        "SUCCEEDED"
+                    ]
+                },
+                "type": "Switch"
+            }
+        },
+        "contentVersion": "1.0.0.0",
+        "outputs": {},
+        "triggers": {
+            "When_messages_are_available_in_a_topic": {
+                "inputs": {
+                    "parameters": {
+                        "isSessionsEnabled": false,
+                        "subscriptionName": "sbs-devices",
+                        "topicName": "sbt-integration-d365-inbound"
+                    },
+                    "serviceProviderConfiguration": {
+                        "connectionName": "serviceBus",
+                        "operationId": "receiveTopicMessages",
+                        "serviceProviderId": "/serviceProviders/serviceBus"
+                    }
+                },
+                "splitOn": "@triggerOutputs()?['body']",
+                "type": "ServiceProvider"
+            }
+        }
+    },
+    "kind": "Stateful"
+}

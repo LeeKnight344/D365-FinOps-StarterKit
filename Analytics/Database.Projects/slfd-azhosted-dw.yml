@@ -1,0 +1,190 @@
+trigger:
+  branches:
+    include:
+      - main
+      - Development
+      - release/*
+  paths:
+    include:
+      - 'Analytics/Database.Projects/slfd-azhosted-dw'
+
+
+pool: 
+  vmimage: windows-latest
+
+variables:
+  Devops_Service_Connection_Name: 'Sandbox - PAYG'
+  Devops_Service_Principal: 'ee797751-c283-4f26-a4e4-87a0116197cb'
+  Primary_EntraID_Admin_Email: 'leek@the-sandbox.co.uk'  #Variable for UPN of Entra ID Admin
+  Primary_EntraID_Admin_SID: 'eb5001b9-8346-476a-b26a-77952ce01f70'
+  Azure_Subscription_Id: '262069d1-4249-43a7-acc3-55714500fc42' #Variable for Azure Subscription ID
+  Azure_Tenant_Id: '3dccfdf8-200b-47e3-afff-4a495b603cc2'
+  Azure_Resource_Location: 'ukwest'
+  Azure_Resource_Location_Formatted: 'UK West'
+  AZ_Customer_Prefix: 'lks'
+
+
+stages:
+
+- stage: Pooldacpac
+  displayName: 'Build dacpac'
+
+  jobs:
+    - job: 'Builddacpac'
+      displayName: 'Build SLFD Serverless dacpac'
+      
+      steps:
+     
+      - task: VSBuild@1
+        displayName: 'Builds the dacpac'
+        inputs:
+          solution: Analytics\Database.Projects\slfd-azhosted-dw\slfd-azhosted-dw.sqlproj
+          configuration: release
+
+      - task: PublishBuildArtifacts@1
+        displayName: 'Publishes dacpac as an artifact'
+        inputs:
+          PathtoPublish: 'Analytics\Database.Projects\slfd-azhosted-dw\bin\release'
+          ArtifactName: slfd-azhosted-dw
+          publishLocation: 'Container'
+
+- stage: SLFDDeployDev
+  variables:
+  - group: SLFD - Secure Development Variables
+    #Synapse Link Resource Specific Variables
+  - name: AZ_SynapseWorkspace_Name
+    value: 'slfd-dev-sw-01'
+  - name: AZ_SQLHost_Local_Admin_Username
+    value: 'adwsqldev01'
+  - name: AZ_SQLHost_Name
+    value: slfd-adw-serv-dev-01
+  - name: AZ_SQLDB_Name
+    value: slfd-adw-db-dev-01
+  displayName: 'Synapse Link for DV DB Deploy Dev'
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/Development')
+  jobs:
+  - deployment: 'SLFDDeployDev'
+    displayName: 'SLFD Azure Hosted SQL Pool Dev'
+    environment: Development
+
+    pool: 
+      vmimage: windows-latest
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - task: DownloadBuildArtifacts@0
+              displayName: 'Dowload Artifacts'
+              inputs:
+                buildType: 'current'
+                downloadType: 'specific'
+                artifactName:  'slfd-azhosted-dw'
+                downloadPath: '$(System.ArtifactsDirectory)'
+
+            - task: SqlAzureDacpacDeployment@1
+              displayName: 'Install DACPAC on dedicated SQL Pool'
+              inputs:
+                azureSubscription: $(Devops_Service_Connection_Name)
+                AuthenticationType: 'server'
+                ServerName: $(AZ_Customer_Prefix)-$(AZ_SQLHost_Name).database.windows.net
+                DatabaseName: $(AZ_Customer_Prefix)-$(AZ_SQLDB_Name)
+                SqlUsername: $(AZ_Customer_Prefix)-$(AZ_SQLHost_Local_Admin_Username)
+                SqlPassword: $(AZ_SQLHost_Local_Admin_Password)
+                deployType: 'DacpacTask'
+                DeploymentAction: 'Publish'
+                DacpacFile: '$(System.ArtifactsDirectory)/slfd-azhosted-dw/slfd-azhosted-dw.dacpac'
+                IpDetectionMethod: 'AutoDetect'
+
+- stage: SLFDDeployUAT
+  variables:
+  - group: SLFD - Secure UAT Variables
+      #Synapse Link Resource Specific Variables
+  - name: AZ_SynapseWorkspace_Name
+    value: 'slfd-uat-sw-01'
+  - name: AZ_SQLHost_Local_Admin_Username
+    value: 'adwsqluat01'
+  - name: AZ_SQLHost_Name
+    value: slfd-adw-serv-uat-01
+  - name: AZ_SQLDB_Name
+    value: slfd-adw-db-uat-01
+  displayName: 'Synapse Link for DV DB Deploy UAT'
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
+  jobs:
+  - deployment: 'SLFDDeployuat'
+    displayName: 'SLFD Azure Hosted SQL Pool UAT'
+    environment: uat
+
+    pool: 
+      vmimage: windows-latest
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - task: DownloadBuildArtifacts@0
+              displayName: 'Dowload Artifacts'
+              inputs:
+                buildType: 'current'
+                downloadType: 'specific'
+                artifactName:  'slfd-azhosted-dw'
+                downloadPath: '$(System.ArtifactsDirectory)'
+
+            - task: SqlAzureDacpacDeployment@1
+              displayName: 'Install DACPAC on dedicated SQL Pool'
+              inputs:
+                azureSubscription: $(Devops_Service_Connection_Name)
+                AuthenticationType: 'server'
+                ServerName: $(AZ_Customer_Prefix)-$(AZ_SQLHost_Name).database.windows.net
+                DatabaseName: $(AZ_Customer_Prefix)-$(AZ_SQLDB_Name)
+                SqlUsername: $(AZ_Customer_Prefix)-$(AZ_SQLHost_Local_Admin_Username)
+                SqlPassword: $(AZ_SQLHost_Local_Admin_Password)
+                deployType: 'DacpacTask'
+                DeploymentAction: 'Publish'
+                DacpacFile: '$(System.ArtifactsDirectory)/slfd-azhosted-dw/slfd-azhosted-dw.dacpac'
+                IpDetectionMethod: 'AutoDetect'
+
+- stage: SLFDDeployProd
+  variables:
+  - group: SLFD - Secure Production Variables
+    #Synapse Link Resource Specific Variables
+  - name: AZ_SynapseWorkspace_Name
+    value: 'slfd-prod-sw-01'
+  - name: AZ_SQLHost_Local_Admin_Username
+    value: 'adwsqlprod01'
+  - name: AZ_SQLHost_Name
+    value: slfd-adw-serv-prod-01
+  - name: AZ_SQLDB_Name
+    value: slfd-adw-db-prod-01
+  displayName: 'Synapse Link for DV DB Deploy Prod'
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
+  jobs:
+  - deployment: 'SLFDDeployDev'
+    displayName: 'SLFD Azure Hosted SQL Pool Prod'
+    environment: Development
+
+    pool: 
+      vmimage: windows-latest
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - task: DownloadBuildArtifacts@0
+              displayName: 'Dowload Artifacts'
+              inputs:
+                buildType: 'current'
+                downloadType: 'specific'
+                artifactName:  'slfd-azhosted-dw'
+                downloadPath: '$(System.ArtifactsDirectory)'
+
+            - task: SqlAzureDacpacDeployment@1
+              displayName: 'Install DACPAC on dedicated SQL Pool'
+              inputs:
+                azureSubscription: $(Devops_Service_Connection_Name)
+                AuthenticationType: 'server'
+                ServerName: $(AZ_Customer_Prefix)-$(AZ_SQLHost_Name).database.windows.net
+                DatabaseName: $(AZ_Customer_Prefix)-$(AZ_SQLDB_Name)
+                SqlUsername: $(AZ_Customer_Prefix)-$(AZ_SQLHost_Local_Admin_Username)
+                SqlPassword: $(AZ_SQLHost_Local_Admin_Password)
+                deployType: 'DacpacTask'
+                DeploymentAction: 'Publish'
+                DacpacFile: '$(System.ArtifactsDirectory)/slfd-azhosted-dw/slfd-azhosted-dw.dacpac'
+                IpDetectionMethod: 'AutoDetect'

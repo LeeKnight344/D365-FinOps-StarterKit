@@ -1,0 +1,14 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "APP_KIND": "workflowapp",
+    "FUNCTIONS_WORKER_RUNTIME": "node",
+    "ProjectDirectoryPath": "c:\\Users\\Admin9e8619f61a\\source\\SMT-FUSION\\Integrations\\LogicApp.Projects\\workflow-designtime",
+    "AzureWebJobsSecretStorageType": "Files",
+    "WORKFLOWS_TENANT_ID": "5e53b6f1-adb6-49ff-8006-83241f46040b",
+    "WORKFLOWS_SUBSCRIPTION_ID": "070a8c50-e88e-4f5f-9764-8eef799c788e",
+    "WORKFLOWS_RESOURCE_GROUP_NAME": "integrations-uat-rg-01",
+    "WORKFLOWS_LOCATION_NAME": "westeurope",
+    "WORKFLOWS_MANAGEMENT_BASE_URI": "https://management.azure.com/"
+  }
+}

@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:element name="root">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="BusinessUnitId" type="xs:string" />
+				<xs:element name="CorrelationId" type="xs:string" />
+				<xs:element name="Depth" type="xs:unsignedByte" />
+				<xs:element name="InitiatingUserAgent" type="xs:string" />
+				<xs:element name="InitiatingUserAzureActiveDirectoryObjectId" type="xs:string" />
+				<xs:element name="InitiatingUserId" type="xs:string" />
+				<xs:element maxOccurs="unbounded" name="InputParameters">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="key" type="xs:string" />
+							<xs:element name="value">
+								<xs:complexType mixed="true">
+									<xs:sequence minOccurs="0">
+										<xs:element name="__type" type="xs:string" />
+										<xs:element name="mserp_a365_privatenumber">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value" />
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_msauto_chassisnumber">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value" />
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_msauto_devicenumber">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value" type="xs:unsignedInt" />
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_msauto_registrationnumber">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value" type="xs:string" />
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_msauto_vin">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value" />
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_msauto_year">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value" type="xs:unsignedByte" />
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_devicebrand">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value" type="xs:string" />
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_businessoperation">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value" />
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_deviceclass">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value" type="xs:string" />
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_devicemodelcode">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value" type="xs:string" />
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_devicemodel">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value" type="xs:string" />
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_devicestate">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value" type="xs:string" />
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_devicetype">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value" type="xs:string" />
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_statecode">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value">
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="__type" type="xs:string" />
+																<xs:element name="Value" type="xs:unsignedInt" />
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_statuscode">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value">
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="__type" type="xs:string" />
+																<xs:element name="Value" type="xs:unsignedInt" />
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_msauto_description">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value" type="xs:string" />
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_msauto_name">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value" type="xs:unsignedInt" />
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_devicevariant">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value" />
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_a365_drivetraintypeid">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value" />
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_a365_environmentclassid">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value" />
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_a365_fueltypeid">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value" />
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_a365_registrationplatetypeid">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value" />
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_a365_transmissiontypeid">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value" />
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_a365_transmission">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value">
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="__type" type="xs:string" />
+																<xs:element name="Value" type="xs:unsignedInt" />
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_deviceengine">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value" />
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_a365_enginedisplacement">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value" type="xs:unsignedByte" />
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_a365_enginehp">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value" type="xs:unsignedByte" />
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_a365_enginekw">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value" type="xs:unsignedByte" />
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_a365_enginetorque">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value" type="xs:unsignedByte" />
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_a365_noofpassengers">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value" type="xs:unsignedByte" />
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_a365_noofdoors">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value" type="xs:unsignedByte" />
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_a365_deviceinteriorid">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value" />
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_a365_deviceexteriorid">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value" />
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_a365deviceentityid">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value" type="xs:string" />
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="EntityState" />
+										<xs:element name="Id" type="xs:string" />
+										<xs:element name="LogicalName" type="xs:string" />
+										<xs:element name="RowVersion" />
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="IsExecutingOffline" type="xs:boolean" />
+				<xs:element name="IsInTransaction" type="xs:boolean" />
+				<xs:element name="IsOfflinePlayback" type="xs:boolean" />
+				<xs:element name="IsolationMode" type="xs:unsignedByte" />
+				<xs:element name="MessageName" type="xs:string" />
+				<xs:element name="Mode" type="xs:unsignedByte" />
+				<xs:element name="OperationCreatedOn" type="xs:dateTime" />
+				<xs:element name="OperationId" type="xs:string" />
+				<xs:element name="OrganizationId" type="xs:string" />
+				<xs:element name="OrganizationName" type="xs:string" />
+				<xs:element name="OwningExtension">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="Id" type="xs:string" />
+							<xs:element name="LogicalName" type="xs:string" />
+							<xs:element name="Name" />
+							<xs:element name="RowVersion" />
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="ParentContext" />
+				<xs:element name="PrimaryEntityId" type="xs:string" />
+				<xs:element name="PrimaryEntityName" type="xs:string" />
+				<xs:element name="RequestId" type="xs:string" />
+				<xs:element name="SecondaryEntityName" type="xs:string" />
+				<xs:element maxOccurs="unbounded" name="SharedVariables">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="key" type="xs:string" />
+							<xs:element name="value" type="xs:string" />
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="Stage" type="xs:unsignedByte" />
+				<xs:element name="UserAzureActiveDirectoryObjectId" type="xs:string" />
+				<xs:element name="UserId" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

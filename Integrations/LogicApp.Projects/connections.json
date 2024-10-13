@@ -1,0 +1,51 @@
+{
+  "serviceProviderConnections": {
+    "serviceBus": {
+      "parameterValues": {
+        "connectionString": "@appsetting('serviceBus_connectionString')"
+      },
+      "serviceProvider": {
+        "id": "/serviceProviders/serviceBus"
+      },
+      "displayName": "sbn-integration"
+    }
+  },
+  "managedApiConnections": {
+    "commondataservice": {
+      "api": {
+        "id": "/subscriptions/@appsetting('subsriptionid')/providers/Microsoft.Web/locations/appsetting('azureregion')/managedApis/commondataservice"
+      },
+      "authentication": {
+        "type": "ManagedServiceIdentity"
+      },
+      "connection": {
+        "id": "/subscriptions/@appsetting('subsriptionid')/resourceGroups/@appsetting('resourcegroup')/providers/Microsoft.Web/connections/commondataservice"
+      },
+      "connectionRuntimeUrl": "@appsetting('dataverseconnectionruntimeurl')"
+    },
+    "azureblob": {
+      "api": {
+        "id": "/subscriptions/@appsetting('subsriptionid')/providers/Microsoft.Web/locations/appsetting('azureregion')/managedApis/azureblob"
+      },
+      "authentication": {
+        "type": "ManagedServiceIdentity"
+      },
+      "connection": {
+        "id": "/subscriptions/@appsetting('subsriptionid')/resourceGroups/@appsetting('resourcegroup')/providers/Microsoft.Web/connections/blobstorage"
+      },
+      "connectionRuntimeUrl": "@appsetting('blobstorageconnectionruntimeurl')"
+    },
+    "azureloganalyticsdatacollector": {
+      "api": {
+        "id": "/subscriptions/@appsetting('subsriptionid')/providers/Microsoft.Web/locations/appsetting('azureregion')/managedApis/azureblob"
+      },
+      "authentication": {
+        "type": "ManagedServiceIdentity"
+      },
+      "connection": {
+        "id": "/subscriptions/@appsetting('subsriptionid')/resourceGroups/@appsetting('resourcegroup')/providers/Microsoft.Web/connections/azureloganalyticsdatacollector"
+      },
+      "connectionRuntimeUrl": "@appsetting('loganalyticsconnectionruntimeurl')"
+    }
+  }
+}

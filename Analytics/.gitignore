@@ -1,0 +1,21 @@
+Database.Projects/slfd-serverless-dw/bin/
+Database.Projects/slfd-serverless-dw/Import Schema Logs/
+Database.Projects/slfd-serverless-dw/obj/
+Database.Projects/slfd-serverless-dw/slfd-serverless-dw.dbmdl
+Database.Projects/slfd-serverless-dw/slfd-serverless-dw.sqlproj.user
+Database.Projects/slfd-serverless-dw/.vs
+Database.Projects/slfd-azhosted-dw/bin/
+Database.Projects/slfd-azhosted-dw/Import Schema Logs/
+Database.Projects/slfd-azhosted-dw/obj/
+Database.Projects/slfd-azhosted-dw/slfd-azhosted-dw.dbmdl
+Database.Projects/slfd-azhosted-dw/slfd-azhosted-dw.sqlproj.user
+Database.Projects/slfd-azhosted-dw/.vs
+Database.Projects/slfd-synapsededicated-dw/bin/
+Database.Projects/slfd-synapsededicated-dw/Import Schema Logs/
+Database.Projects/slfd-synapsededicated-dw/obj/
+Database.Projects/slfd-synapsededicated-dw/slfd-synapsededicated-dw.dbmdl
+Database.Projects/slfd-synapsededicated-dw/slfd-synapsededicated-dw.sqlproj.user
+Database.Projects/slfd-synapsededicated-dw/.vs
+.vs
+
+

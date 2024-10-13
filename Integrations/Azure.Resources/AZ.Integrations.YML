@@ -1,0 +1,204 @@
+trigger:
+  branches:
+    include:
+      - main
+      - Development
+      - release/*
+  paths:
+    include:
+      - 'Integrations/Azure.Resources/AZ.Integrations.bicep'
+
+pool:
+  #name: #Your Pool Name here
+  vmImage: windows-latest #Use this for Azure hosted Agents
+
+variables:
+  Devops_Service_Connection_Name: 'Sandbox - PAYG'
+  Devops_Service_Principal: 'ee797751-c283-4f26-a4e4-87a0116197cb'
+  Primary_EntraID_Admin_Email: 'leek@the-sandbox.co.uk'  #Variable for UPN of Entra ID Admin
+  Primary_EntraID_Admin_SID: 'eb5001b9-8346-476a-b26a-77952ce01f70'
+  Azure_Subscription_Id: '262069d1-4249-43a7-acc3-55714500fc42' #Variable for Azure Subscription ID
+  Azure_Tenant_Id: '3dccfdf8-200b-47e3-afff-4a495b603cc2'
+  Azure_Resource_Location: 'ukwest'
+  Azure_Resource_Location_Formatted: 'UK West'
+  AZ_Customer_Prefix: 'lks'
+
+stages:
+  - stage: IntegrationsAzureResourceDeploymentDev
+    displayName: 'IntegrationsAzureResourceDeploymentDev'
+    variables:
+      - group: Integrations - Secure Development Variables
+    jobs:
+      - deployment: 'IntegrationsAzureResourceDeploymentDev'
+        displayName: 'Integrations Environment Development'
+        environment: Development
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+                - task: AzureResourceManagerTemplateDeployment@3
+                  inputs:
+                    deploymentScope: 'Resource Group'
+                    azureResourceManagerConnection: "$(Devops_Service_Connection_Name)"
+                    subscriptionId: $(Azure_Subscription_Id)
+                    action: 'Create Or Update Resource Group'
+                    resourceGroupName: '$(AZ_Customer_Prefix)-integrations-dev-rg-01'
+                    location: "$(Azure_Resource_Location_Formatted)"
+                    templateLocation: 'Linked artifact'
+                    csmFile: 'Integrations/Azure.Resources/AZ.Integrations.bicep'
+                    csmParametersFile: 'Integrations/Azure.Resources/AZIntegrations.Parameters.json'
+                    overrideParameters: >
+                      -AZ_Subscription_id $(Azure_Subscription_Id)
+                      -AZ_Tenant_ID $(Azure_Tenant_Id)
+                      -AZ_Resource_Group $(AZ_Customer_Prefix)-integrations-dev-rg-01
+                      -AZ_Resource_Location $(Azure_Resource_Location)
+                      -AZ_LogAnalytics_Workspace_Name $(AZ_Customer_Prefix)-integrations-dev-loganalytics-01
+                      -AZ_App_Insights_Name $(AZ_Customer_Prefix)-integrations-dev-appsinsights-01
+                      -AZ_StorageAccount_Name $(AZ_Customer_Prefix)integrationsdevsa01
+                      -AZ_StorageAccount_FileShare_Name $(AZ_Customer_Prefix)-integrations-dev-logic
+                      -AZ_32B_Worker_Process false
+                      -AZ_FTPS_State FtpsOnly
+                      -AZ_DOTNET_Framework v6.0
+                      -AZ_Logic_App_Service_SKU WorkflowStandard
+                      -AZ_Logic_App_Service_SKU_Code WS1
+                      -AZ_Logic_App_Service_WorkerSize 3
+                      -AZ_Logic_App_Service_WorkerSize_ID 3
+                      -AZ_Logic_App_Service_Number_Of_Workers 1
+                      -AZ_Logic_App_Service_Name $(AZ_Customer_Prefix)-integrations-dev-logic-asp-01
+                      -AZ_LogicApp_Name $(AZ_Customer_Prefix)-integrations-dev-logic-01
+                      -AZ_service_bus_Namespace_Name $(AZ_Customer_Prefix)-integrations-dev-sbn-01
+                      -AZ_service_bus_Namespace_sku Standard
+                      -AZ_service_bus_Namespace_skuname Standard
+                      -AZ_APIS_Dataverse_Name commondataservice
+                      -AZ_APIS_Dataverse_Client_ID YOUR_CLIENT_ID
+                      -AZ_APIS_Dataverse_Client_Secret $(AZ_APIS_Dataverse_Client_Secret) 
+                      -AZ_APIS_Dataverse_Object_ID YOUR_CLIENT_SECRET
+                      -AZ_APIS_LogAnalytics_Name azureloganalyticsdatacollector
+                      -AZ_APIS_BlobStorage_Name blobstorage
+                      -AZ_APIS_Dataverse_URL https://operations-envname-dev01.crm4.dynamics.com/
+                      -AZ_APIS_FinandOps_URL https://envname.cloudax.eu.dynamics.com/
+                      -AZ_KeyVaultName $(AZ_Customer_Prefix)-integrations-dev-kv
+                      -AZ_KeyVault_Admin_User eb5001b9-8346-476a-b26a-77952ce01f70
+                    deploymentMode: 'Incremental'
+                  displayName: 'Deploy Azure Integration resources using ARM Template'
+                      # -AZ_KeyVaultName integrations-dev-kv-01
+  - stage: IntegrationsAzureResourceDeploymentUAT
+    displayName: 'IntegrationsAzureResourceDeploymentUAT'
+    condition: eq(variables['Build.SourceBranchName'], 'main')
+    variables:
+      - group: Integrations - Secure Development Variables
+    jobs:
+      - deployment: 'IntegrationsAzureResourceDeploymentUAT'
+        displayName: 'Integrations Environment UAT'
+        environment: UAT
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+                - task: AzureResourceManagerTemplateDeployment@3
+                  inputs:
+                    deploymentScope: 'Resource Group'
+                    azureResourceManagerConnection: "$(Devops_Service_Connection_Name)"
+                    subscriptionId: $(Azure_Subscription_Id)
+                    action: 'Create Or Update Resource Group'
+                    resourceGroupName: 'lks-integrations-uat-rg-01'
+                    location: "$(Azure_Resource_Location_Formatted)"
+                    templateLocation: 'Linked artifact'
+                    csmFile: 'Integrations/Azure.Resources/AZ.Integrations.bicep'
+                    csmParametersFile: 'Integrations/Azure.Resources/AZIntegrations.Parameters.json'
+                    overrideParameters: >
+                      -AZ_Subscription_id $(Azure_Subscription_Id)
+                      -AZ_Tenant_ID $(Azure_Tenant_Id)
+                      -AZ_Resource_Group lks-integrations-uat-rg-01
+                      -AZ_Resource_Location $(Azure_Resource_Location)
+                      -AZ_LogAnalytics_Workspace_Name lks-integrations-uat-loganalytics-01
+                      -AZ_App_Insights_Name integrations-uat-appsinsights-01
+                      -AZ_StorageAccount_Name lksintegrationsuatsa01
+                      -AZ_StorageAccount_FileShare_Name lks-integrations-uat-logic
+                      -AZ_32B_Worker_Process false
+                      -AZ_FTPS_State FtpsOnly
+                      -AZ_DOTNET_Framework v6.0
+                      -AZ_Logic_App_Service_SKU WorkflowStandard
+                      -AZ_Logic_App_Service_SKU_Code WS1
+                      -AZ_Logic_App_Service_WorkerSize 3
+                      -AZ_Logic_App_Service_WorkerSize_ID 3
+                      -AZ_Logic_App_Service_Number_Of_Workers 1
+                      -AZ_Logic_App_Service_Name lks-integrations-uat-logic-asp-01
+                      -AZ_LogicApp_Name integrations-uat-logic-01
+                      -AZ_service_bus_Namespace_Name lks-integrations-uat-sbn-01
+                      -AZ_service_bus_Namespace_sku Standard
+                      -AZ_service_bus_Namespace_skuname Standard
+                      -AZ_APIS_Dataverse_Name commondataservice
+                      -AZ_APIS_Dataverse_Client_ID 7fdb9843-aa49-4919-b58e-064c9639e187
+                      -AZ_APIS_Dataverse_Object_ID 8b5a0603-307a-454d-bf92-ecc853cf9273
+                      -AZ_APIS_Dataverse_Client_Secret $(AZ_APIS_Dataverse_Client_Secret) 
+                      -AZ_APIS_LogAnalytics_Name azureloganalyticsdatacollector
+                      -AZ_APIS_BlobStorage_Name blobstorage
+                      -AZ_APIS_Dataverse_URL https://envname-uat-1.crm4.dynamics.com/
+                      -AZ_APIS_FinandOps_URL https://envname.sandbox.operations.eu.dynamics.com/
+                      -AZ_KeyVaultName lks-integrations-uat-kv
+                      -AZ_KeyVault_Admin_User eb5001b9-8346-476a-b26a-77952ce01f70
+                    deploymentMode: 'Incremental'
+                  displayName: 'Deploy Azure Integration resources using ARM Template'
+
+  - stage: IntegrationsAzureResourceDeploymentProd
+    displayName: 'IntegrationsAzureResourceDeploymentProd'
+    condition: succeeded()
+    variables:
+      - group: Integrations - Secure Development Variables
+    jobs:
+      - deployment: 'IntegrationsAzureResourceDeploymentProd'
+        displayName: 'Integrations Environment Prod'
+        environment: Production
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+                - task: AzureResourceManagerTemplateDeployment@3
+                  inputs:
+                    deploymentScope: 'Resource Group'
+                    azureResourceManagerConnection: "$(Devops_Service_Connection_Name)"
+                    subscriptionId: $(Azure_Subscription_Id)
+                    action: 'Create Or Update Resource Group'
+                    resourceGroupName: 'lks-integrations-prod-rg-01'
+                    location: "$(Azure_Resource_Location_Formatted)"
+                    templateLocation: 'Linked artifact'
+                    csmFile: 'Integrations/Azure.Resources/AZ.Integrations.bicep'
+                    csmParametersFile: 'Integrations/Azure.Resources/AZIntegrations.Parameters.json'
+                    overrideParameters: >
+                      -AZ_Subscription_id $(Azure_Subscription_Id)
+                      -AZ_Tenant_ID $(Azure_Tenant_Id)
+                      -AZ_Resource_Group lks-integrations-prod-rg-01
+                      -AZ_Resource_Location $(Azure_Resource_Location)
+                      -AZ_LogAnalytics_Workspace_Name lks-integrations-prod-loganalytics-01
+                      -AZ_App_Insights_Name lks-integrations-prod-appsinsights-01
+                      -AZ_StorageAccount_Name lksintegrationsprodsa01
+                      -AZ_StorageAccount_FileShare_Name lks-integrations-prod-logic
+                      -AZ_32B_Worker_Process false
+                      -AZ_FTPS_State FtpsOnly
+                      -AZ_DOTNET_Framework v6.0
+                      -AZ_Logic_App_Service_SKU WorkflowStandard
+                      -AZ_Logic_App_Service_SKU_Code WS1
+                      -AZ_Logic_App_Service_WorkerSize 3
+                      -AZ_Logic_App_Service_WorkerSize_ID 3
+                      -AZ_Logic_App_Service_Number_Of_Workers 1
+                      -AZ_Logic_App_Service_Name lks-integrations-prod-logic-asp-01
+                      -AZ_LogicApp_Name lks-integrations-prod-logic-01
+                      -AZ_service_bus_Namespace_Name lks-integrations-prod-sbn-01
+                      -AZ_service_bus_Namespace_sku Standard
+                      -AZ_service_bus_Namespace_skuname Standard
+                      -AZ_APIS_Dataverse_Name commondataservice
+                      -AZ_APIS_Dataverse_Client_ID 7fdb9843-aa49-4919-b58e-064c9639e187
+                      -AZ_APIS_Dataverse_Client_Secret $(AZ_APIS_Dataverse_Client_Secret) 
+                      -AZ_APIS_Dataverse_Object_ID 8b5a0603-307a-454d-bf92-ecc853cf9273
+                      -AZ_APIS_LogAnalytics_Name azureloganalyticsdatacollector
+                      -AZ_APIS_BlobStorage_Name blobstorage
+                      -AZ_APIS_Dataverse_URL https://envname.crm4.dynamics.com/
+                      -AZ_APIS_FinandOps_URL https://envname.dynamics.com/
+                      -AZ_KeyVaultName lks-integrations-prod-kv
+                      -AZ_KeyVault_Admin_User eb5001b9-8346-476a-b26a-77952ce01f70
+                    deploymentMode: 'Incremental'
+                  displayName: 'Deploy Azure Integration resources using ARM Template'

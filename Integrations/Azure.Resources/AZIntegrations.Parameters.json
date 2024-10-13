@@ -1,0 +1,80 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "AZ_LogAnalytics_Workspace_Name": {
+      "value": null
+    },
+    "AZ_Resource_Location": {
+      "value": null
+    },
+    "AZ_Subscription_id": {
+      "value": null
+    },
+    "AZ_Resource_Group": {
+      "value": null
+    },
+    "AZ_32B_Worker_Process": {
+      "value": false
+    },
+    "AZ_FTPS_State": {
+      "value": null
+    },
+    "AZ_StorageAccount_Name": {
+      "value": null
+    },
+    "AZ_DOTNET_Framework": {
+      "value": null
+    },
+    "AZ_Logic_App_Service_SKU": {
+      "value": null
+    },
+    "AZ_Logic_App_Service_SKU_Code": {
+      "value": null
+    },
+    "AZ_Logic_App_Service_WorkerSize": {
+      "value": null
+    },
+    "AZ_Logic_App_Service_WorkerSize_ID": {
+      "value": null
+    },
+    "AZ_Logic_App_Service_Number_Of_Workers": {
+      "value": null
+    },
+    "AZ_Logic_App_Service_Name": {
+      "value": null
+    },
+    "AZ_service_bus_Namespace_Name": {
+      "value": null
+    },
+    "AZ_service_bus_Namespace_sku": {
+      "value": null
+    },
+    "AZ_service_bus_Namespace_skuname": {
+      "value": null
+    },
+    "AZ_Tenant_ID": {
+      "value": null
+    },
+    "AZ_APIS_Dataverse_Name": {
+      "value": null
+    },
+    "AZ_APIS_Dataverse_Client_ID": {
+      "value": null
+    },
+    "AZ_APIS_LogAnalytics_Name": {
+      "value": null
+    },
+    "AZ_APIS_BlobStorage_Name": {
+      "value": null
+    },
+    "AZ_KeyVaultName": {
+      "value": null
+    },
+    "AZ_APIS_Dataverse_Object_ID": {
+      "value": null
+    }
+  }
+}
+
+

@@ -1,0 +1,603 @@
+{
+    "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "actions": {
+            "Broadcast_Type": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "Broadcast Type",
+                            "type": "string",
+                            "value": "@triggerBody()?['userProperties']['BroadcastType']"
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Parse_Bearer_Token": [
+                        "SUCCEEDED"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Find_Matching_Dataverse_Record": {
+                "inputs": {
+                    "headers": {
+                        "Authorization": "Bearer @{body('Parse_Bearer_Token')?['access_token']}"
+                    },
+                    "method": "GET",
+                    "uri": "@{parameters('AZ_APIS_Dataverse_URL')}api/data/v9.1/mserp_systemuserentities?$filter=mserp_userid eq '@{json(xml(triggerBody()?['contentData']))['SystemUserBroadcast']['UserID']}'"
+                },
+                "runAfter": {
+                    "Broadcast_Type": [
+                        "SUCCEEDED"
+                    ]
+                },
+                "runtimeConfiguration": {
+                    "contentTransfer": {
+                        "transferMode": "Chunked"
+                    }
+                },
+                "type": "Http"
+            },
+            "Get_Dataverse_Bearer_Token": {
+                "inputs": {
+                    "body": "grant_type=client_credentials\n&client_id=@{parameters('AZ_APIS_Dataverse_Client_ID')}\n&client_secret=@{parameters('AZ_APIS_Dataverse_Client_Secret')}\n&resource=@{parameters('AZ_APIS_Dataverse_URL')}",
+                    "headers": {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    "method": "POST",
+                    "uri": "https://login.microsoftonline.com/@{parameters('AZ_Tenant_ID')}/oauth2/token"
+                },
+                "runAfter": {},
+                "runtimeConfiguration": {
+                    "contentTransfer": {
+                        "transferMode": "Chunked"
+                    }
+                },
+                "type": "Http"
+            },
+            "Parse_Bearer_Token": {
+                "inputs": {
+                    "content": "@body('Get_Dataverse_Bearer_Token')",
+                    "schema": {
+                        "properties": {
+                            "access_token": {
+                                "type": "string"
+                            },
+                            "expires_in": {
+                                "type": "string"
+                            },
+                            "expires_on": {
+                                "type": "string"
+                            },
+                            "ext_expires_in": {
+                                "type": "string"
+                            },
+                            "not_before": {
+                                "type": "string"
+                            },
+                            "resource": {
+                                "type": "string"
+                            },
+                            "token_type": {
+                                "type": "string"
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "runAfter": {
+                    "Get_Dataverse_Bearer_Token": [
+                        "SUCCEEDED"
+                    ]
+                },
+                "type": "ParseJson"
+            },
+            "Parse_JSON": {
+                "inputs": {
+                    "content": "@body('Find_Matching_Dataverse_Record')",
+                    "schema": {
+                        "properties": {
+                            "@@odata.context": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "value": {
+                                "items": {
+                                    "properties": {
+                                        "mserp_accounttype": {
+                                            "type": [
+                                                "integer",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_alias": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_autologoff": {
+                                            "type": [
+                                                "integer",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_automaticurlupdate": {
+                                            "type": [
+                                                "integer",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_company": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_defaultcountryregion": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_density": {},
+                                        "mserp_documenthandlingactive": {
+                                            "type": [
+                                                "integer",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_email": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_emailproviderid": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_enabled": {
+                                            "type": [
+                                                "integer",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_eventpollfrequency": {
+                                            "type": [
+                                                "integer",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_eventpopupdisplaywhen": {
+                                            "type": [
+                                                "integer",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_eventpopuplinkdestination": {
+                                            "type": [
+                                                "integer",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_eventpopups": {
+                                            "type": [
+                                                "integer",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_eventworkflowshowpopup": {
+                                            "type": [
+                                                "integer",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_eventworkflowtasksinactioncenter": {
+                                            "type": [
+                                                "integer",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_externaluser": {
+                                            "type": [
+                                                "integer",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_globalexcelexportfilepath": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_globalexcelexportmode": {
+                                            "type": [
+                                                "integer",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_globallistpagelinkmode": {
+                                            "type": [
+                                                "integer",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_helplanguage": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_homepagerefreshduration": {
+                                            "type": [
+                                                "integer",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_language": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_markemptylinks": {
+                                            "type": [
+                                                "integer",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_networkdomain": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_personname": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_preferredcalendar": {
+                                            "type": [
+                                                "integer",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_preferredlocale": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_preferredtimezone": {
+                                            "type": [
+                                                "integer",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_sendalertasemailmessage": {
+                                            "type": [
+                                                "integer",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_sendnotificationsinemail": {
+                                            "type": [
+                                                "integer",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_showattachmentstatus": {
+                                            "type": [
+                                                "integer",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_shownotificationsinthemicrosoftdynamicsax7client": {
+                                            "type": [
+                                                "integer",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_sqmenabled": {
+                                            "type": [
+                                                "integer",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_sqmguid": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_startpage": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_systemuserentityid": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_theme": {
+                                            "type": [
+                                                "integer",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_userid": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_userinfo_defaultpartition": {
+                                            "type": [
+                                                "integer",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_userinfo_language": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_username": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_workflowlineitemnotificationformat": {
+                                            "type": [
+                                                "integer",
+                                                "null"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "mserp_defaultcountryregion",
+                                        "mserp_documenthandlingactive",
+                                        "mserp_showattachmentstatus",
+                                        "mserp_email",
+                                        "mserp_sendalertasemailmessage",
+                                        "mserp_eventpollfrequency",
+                                        "mserp_eventpopupdisplaywhen",
+                                        "mserp_eventpopuplinkdestination",
+                                        "mserp_eventpopups",
+                                        "mserp_eventworkflowshowpopup",
+                                        "mserp_shownotificationsinthemicrosoftdynamicsax7client",
+                                        "mserp_sendnotificationsinemail",
+                                        "mserp_markemptylinks",
+                                        "mserp_userid",
+                                        "mserp_language",
+                                        "mserp_sqmenabled",
+                                        "mserp_sqmguid",
+                                        "mserp_workflowlineitemnotificationformat",
+                                        "mserp_theme",
+                                        "mserp_startpage",
+                                        "mserp_emailproviderid",
+                                        "mserp_username",
+                                        "mserp_enabled",
+                                        "mserp_company",
+                                        "mserp_autologoff",
+                                        "mserp_networkdomain",
+                                        "mserp_alias",
+                                        "mserp_externaluser",
+                                        "mserp_userinfo_language",
+                                        "mserp_helplanguage",
+                                        "mserp_preferredtimezone",
+                                        "mserp_preferredcalendar",
+                                        "mserp_homepagerefreshduration",
+                                        "mserp_globallistpagelinkmode",
+                                        "mserp_globalexcelexportmode",
+                                        "mserp_userinfo_defaultpartition",
+                                        "mserp_globalexcelexportfilepath",
+                                        "mserp_preferredlocale",
+                                        "mserp_accounttype",
+                                        "mserp_personname",
+                                        "mserp_automaticurlupdate",
+                                        "mserp_eventworkflowtasksinactioncenter",
+                                        "mserp_systemuserentityid",
+                                        "mserp_density"
+                                    ],
+                                    "type": "object"
+                                },
+                                "type": "array"
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "runAfter": {
+                    "Find_Matching_Dataverse_Record": [
+                        "SUCCEEDED"
+                    ]
+                },
+                "type": "ParseJson"
+            },
+            "Switch": {
+                "cases": {
+                    "Create_Record": {
+                        "actions": {
+                            "Create_Dataverse_Record": {
+                                "inputs": {
+                                    "body": {
+                                        "mserp_accounttype": 200000002,
+                                        "mserp_alias": "@{json(xml(triggerBody()?['contentData']))['SystemUserBroadcast']['Email']}",
+                                        "mserp_company": "@{json(xml(triggerBody()?['contentData']))['SystemUserBroadcast']['LegalEntity']}",
+                                        "mserp_emailproviderid": "",
+                                        "mserp_enabled": "@json(xml(triggerBody()?['contentData']))['SystemUserBroadcast']['Enabled']",
+                                        "mserp_helplanguage": "@{json(xml(triggerBody()?['contentData']))['SystemUserBroadcast']['Language']}",
+                                        "mserp_networkdomain": "https://sts.windows.net/",
+                                        "mserp_userid": "@{json(xml(triggerBody()?['contentData']))['SystemUserBroadcast']['UserID']}",
+                                        "mserp_userinfo_language": "@{json(xml(triggerBody()?['contentData']))['SystemUserBroadcast']['Language']}",
+                                        "mserp_username": "@{json(xml(triggerBody()?['contentData']))['SystemUserBroadcast']['UserDisplayName']}"
+                                    },
+                                    "headers": {
+                                        "Authorization": "Bearer @{body('Parse_Bearer_Token')?['access_token']}",
+                                        "Content-Type": "application/json; charset=utf-8",
+                                        "OData-MaxVersion": "4.0",
+                                        "OData-Version": "4.0"
+                                    },
+                                    "method": "POST",
+                                    "uri": "@{parameters('AZ_APIS_Dataverse_URL')}api/data/v9.1/mserp_systemuserentities"
+                                },
+                                "runtimeConfiguration": {
+                                    "contentTransfer": {
+                                        "transferMode": "Chunked"
+                                    }
+                                },
+                                "type": "Http"
+                            },
+                            "Terminate_-_Record_Created": {
+                                "inputs": {
+                                    "runStatus": "Succeeded"
+                                },
+                                "runAfter": {
+                                    "Create_Dataverse_Record": [
+                                        "SUCCEEDED"
+                                    ]
+                                },
+                                "type": "Terminate"
+                            }
+                        },
+                        "case": "Create"
+                    },
+                    "Delete_Record": {
+                        "actions": {
+                            "For_each_-_Delete": {
+                                "actions": {
+                                    "Delete_Dataverse_Record": {
+                                        "inputs": {
+                                            "headers": {
+                                                "Authorization": "Bearer @{body('Parse_Bearer_Token')?['access_token']}",
+                                                "Content-Type": "application/json",
+                                                "OData-MaxVersion": "4.0",
+                                                "OData-Version": "4.0"
+                                            },
+                                            "method": "DELETE",
+                                            "uri": "@{parameters('AZ_APIS_Dataverse_URL')}api/data/v9.1/mserp_systemuserentities(@{item()?['mserp_systemuserentityid']})"
+                                        },
+                                        "runtimeConfiguration": {
+                                            "contentTransfer": {
+                                                "transferMode": "Chunked"
+                                            }
+                                        },
+                                        "type": "Http"
+                                    }
+                                },
+                                "foreach": "@outputs('Parse_JSON')?['body']?['value']",
+                                "type": "foreach"
+                            },
+                            "Terminate_-_Record_Deleted": {
+                                "inputs": {
+                                    "runStatus": "Succeeded"
+                                },
+                                "runAfter": {
+                                    "For_each_-_Delete": [
+                                        "SUCCEEDED"
+                                    ]
+                                },
+                                "type": "Terminate"
+                            }
+                        },
+                        "case": "Delete"
+                    },
+                    "Update_Record": {
+                        "actions": {
+                            "For_each_-_Update": {
+                                "actions": {
+                                    "Patch_Dataverse_Record": {
+                                        "inputs": {
+                                            "body": {
+                                                "mserp_alias": "@{json(xml(triggerBody()?['contentData']))['SystemUserBroadcast']['Email']}",
+                                                "mserp_company": "@{json(xml(triggerBody()?['contentData']))['SystemUserBroadcast']['LegalEntity']}",
+                                                "mserp_enabled": "@json(xml(triggerBody()?['contentData']))['SystemUserBroadcast']['Enabled']",
+                                                "mserp_userinfo_language": "@{json(xml(triggerBody()?['contentData']))['SystemUserBroadcast']['Language']}",
+                                                "mserp_username": "@{json(xml(triggerBody()?['contentData']))['SystemUserBroadcast']['UserDisplayName']}"
+                                            },
+                                            "headers": {
+                                                "Authorization": "Bearer @{body('Parse_Bearer_Token')?['access_token']}",
+                                                "Content-Type": "application/json",
+                                                "If-Match": "*",
+                                                "OData-MaxVersion": "4.0",
+                                                "OData-Version": "4.0",
+                                                "Prefer": "return=representation"
+                                            },
+                                            "method": "PATCH",
+                                            "uri": "@{parameters('AZ_APIS_Dataverse_URL')}api/data/v9.1/mserp_systemuserentities(@{item()?['mserp_systemuserentityid']})"
+                                        },
+                                        "runtimeConfiguration": {
+                                            "contentTransfer": {
+                                                "transferMode": "Chunked"
+                                            }
+                                        },
+                                        "type": "Http"
+                                    }
+                                },
+                                "foreach": "@outputs('Parse_JSON')?['body']?['value']",
+                                "type": "foreach"
+                            },
+                            "Terminate_-_Record_Updated": {
+                                "inputs": {
+                                    "runStatus": "Succeeded"
+                                },
+                                "runAfter": {
+                                    "For_each_-_Update": [
+                                        "SUCCEEDED"
+                                    ]
+                                },
+                                "type": "Terminate"
+                            }
+                        },
+                        "case": "Update"
+                    }
+                },
+                "default": {
+                    "actions": {}
+                },
+                "expression": "@variables('Broadcast Type')",
+                "runAfter": {
+                    "Parse_JSON": [
+                        "SUCCEEDED"
+                    ]
+                },
+                "type": "Switch"
+            }
+        },
+        "contentVersion": "1.0.0.0",
+        "outputs": {},
+        "triggers": {
+            "When_messages_are_available_in_a_topic": {
+                "inputs": {
+                    "parameters": {
+                        "isSessionsEnabled": false,
+                        "subscriptionName": "sbs-systemusers",
+                        "topicName": "sbt-integration-d365-inbound"
+                    },
+                    "serviceProviderConfiguration": {
+                        "connectionName": "serviceBus",
+                        "operationId": "receiveTopicMessages",
+                        "serviceProviderId": "/serviceProviders/serviceBus"
+                    }
+                },
+                "splitOn": "@triggerOutputs()?['body']",
+                "type": "ServiceProvider"
+            }
+        }
+    },
+    "kind": "Stateful"
+}

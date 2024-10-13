@@ -1,0 +1,278 @@
+trigger:
+  branches:
+    include:
+      - main
+      - Development
+      - release/*
+  paths:
+    include:
+      - 'Analytics/Azure.Resources/Azure.Resources.SynapseLink.SynapseDedicatedDB/AZ.SynapseLink-SynapseDedicatedDB.bicep'
+
+
+
+pool:
+  #name: #PoolName
+  vmImage: windows-latest #Use this for Azure Hosted Agents
+
+variables:
+  Devops_Service_Connection_Name: 'Sandbox - PAYG'
+  Devops_Service_Principal: 'ee797751-c283-4f26-a4e4-87a0116197cb'
+  Primary_EntraID_Admin_Email: 'leek@the-sandbox.co.uk'  #Variable for UPN of Entra ID Admin
+  Primary_EntraID_Admin_SID: 'eb5001b9-8346-476a-b26a-77952ce01f70'
+  Azure_Subscription_Id: '262069d1-4249-43a7-acc3-55714500fc42' #Variable for Azure Subscription ID
+  Azure_Tenant_Id: '3dccfdf8-200b-47e3-afff-4a495b603cc2'
+  Azure_Resource_Location: 'ukwest'
+  Azure_Resource_Location_Formatted: 'UK West'
+  AZ_Customer_Prefix: 'lks'
+
+
+stages:
+- stage: SLFDAzureResourceDeploymentDev
+  displayName: 'SLFDAzureResourceDeploymentDev'
+  condition: eq(variables['Build.SourceBranchName'], 'Development')
+  variables:
+    - group: SLFD - Secure Development Variables
+    #Synapse Link Resource Specific Variables
+    - name: AZ_SynapseWorkspace_Name
+      value: 'slfd-dev-sw-01'
+    - name: AZ_SynapseWorkspace_SQL_Local_Username
+      value: 'slfddevsqladmin'
+    - name: AZ_SynapseWorkspace_DedicatedSQL_Name
+      value: slfddedicateddb
+  jobs:
+  - deployment: 'SLFDAzureResourceDeploymentDev'
+    displayName: 'SLFD Environment Dev'
+    environment: Development
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - checkout: self
+            - task: AzureResourceManagerTemplateDeployment@3
+              inputs:
+                deploymentScope: 'Resource Group'
+                azureResourceManagerConnection: "$(Devops_Service_Connection_Name)"
+                subscriptionId: $(Azure_Subscription_Id)
+                action: 'Create Or Update Resource Group'
+                resourceGroupName: '$(AZ_Customer_Prefix)-slfd-dev-rg-01'
+                location: "$(Azure_Resource_Location_Formatted)"
+                templateLocation: 'Linked artifact'
+                csmFile: Analytics\Azure.Resources\Azure.Resources.SynapseLink.SynapseDedicatedDB\AZ.SynapseLink-SynapseDedicatedDB.bicep
+                csmParametersFile: Analytics\Azure.Resources\Azure.Resources.SynapseLink.SynapseDedicatedDB\AZ.SynapseLink-SynapseDedicatedDB.Parameters.json
+                overrideParameters: >
+                  -AZ_Subscription_id $(Azure_Subscription_Id)
+                  -AZ_ResourceGroup_Name $(AZ_Customer_Prefix)-slfd-dev-rg-01
+                  -AZ_Resource_Location $(Azure_Resource_Location)
+                  -AZ_Resource_Location_Formatted "$(Azure_Resource_Location_Formatted)"
+                  -AZ_SynapseWorkspace_Name $(AZ_Customer_Prefix)-$(AZ_SynapseWorkspace_Name)
+                  -AZ_SynapseWorkspace_Linked_StorageAccount_defaultfilesystem slfdsaplaceholder
+                  -AZ_SynapseWorkspace_SQL_Local_Username $(AZ_Customer_Prefix)-$(AZ_SynapseWorkspace_SQL_Local_Username)
+                  -AZ_SynapseWorkspace_Managed_ResourceGroupName slfd-dev-mrg-01
+                  -AZ_SynapseWorkspace_EntraID_Admin_ObjectID $(Primary_EntraID_Admin_SID)
+                  -AZ_SparkPool_SynapseWorkspace_Name $(AZ_Customer_Prefix)slfddevaps
+                  -AZ_SparkPool_AutoScale true
+                  -AZ_SparkPool_IsolatedCompute false
+                  -AZ_SparkPool_MinNodeCount 5
+                  -AZ_SparkPool_MaxNodeCount 10
+                  -AZ_SparkPool_NodeCount 0
+                  -AZ_SparkPool_NodeSizeFamily MemoryOptimized
+                  -AZ_SparkPool_NodeSize small
+                  -AZ_SparkPool_AutoPause true
+                  -AZ_SparkPool_AutoPauseDelay 5
+                  -AZ_SparkPool_Version 3.3
+                  -AZ_SparkPool_ConfigFile_Name 
+                  -AZ_SparkPool_ConfigFile_PropertiesContent 
+                  -AZ_SparkPool_SessionLevelPackages true
+                  -AZ_SparkPool_DynamicExecutorAllocation false
+                  -AZ_SparkPool_MinExecutorCount 0
+                  -AZ_SparkPool_MaxExecutorCount 0
+                  -AZ_SparkPool_CacheSize 50
+                  -AZ_StorageAccount_Name $(AZ_Customer_Prefix)slfddevsa01
+                  -AZ_SynapseWorkspace_SQL_Local_Password $(AZ_SynapseWorkspace_SQL_Local_Password)
+                  -AZ_SynapseWorkspace_DedicatedSQL_Name $(AZ_Customer_Prefix)$(AZ_SynapseWorkspace_DedicatedSQL_Name)
+                  -AZ_SynapseWorkspace_DecicatedSQL_Pool_SKU DW100c
+                  -AZ_SynapseWorkspace_DecicatedSQL_Pool_Capacity 0
+                  -AZ_SynapseWorkspace_DecicatedSQL_MaxSize 263882790666240
+                  -AZ_KeyVault_Name $(AZ_Customer_Prefix)-slfd-dev-kv-01
+                  -AZ_KeyVault_Sku Standard
+                  -AZ_KeyVault_Family A
+                  -AZ_KeyVault_TenantId $(Azure_Tenant_Id)
+                  -AZ_KeyVault_EnabledForDeployment true
+                  -AZ_KeyVault_EnabledForTemplateDeployment true
+                  -AZ_KeyVault_EnabledForDiskEncryption false
+                  -AZ_KeyVault_EnabledForRBACAuthorization false
+                  -AZ_KeyVault_Public_Network_Access Enabled
+                  -AZ_KeyVault_SoftDelete_Enabled true
+                  -AZ_KeyVault_SoftDelete_RetentionDays 60
+
+                deploymentMode: 'Incremental'
+              displayName: 'Deploy Azure Synapse resources using ARM Template'
+
+                  
+
+
+
+
+- stage: SLFDAzureResourceDeploymentUAT
+  displayName: 'SLFDAzureResourceDeploymentUAT'
+  condition: eq(variables['Build.SourceBranchName'], 'main')
+  variables:
+    - group: SLFD - Secure UAT Variables
+    #Synapse Link Resource Specific Variables
+    - name: AZ_SynapseWorkspace_Name
+      value: 'slfd-uat-sw-01'
+    - name: AZ_SynapseWorkspace_SQL_Local_Username
+      value: 'slfduatsqladmin'
+    - name: AZ_SynapseWorkspace_DedicatedSQL_Name
+      value: slfddedicateddb
+  jobs:
+  - deployment: 'SLFDAzureResourceDeploymentUAT'
+    displayName: 'SLFD Environment UAT'
+    environment: UAT
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - checkout: self
+            - task: AzureResourceManagerTemplateDeployment@3
+              inputs:
+                deploymentScope: 'Resource Group'
+                azureResourceManagerConnection: "$(Devops_Service_Connection_Name)"
+                subscriptionId: $(Azure_Subscription_Id)
+                action: 'Create Or Update Resource Group'
+                resourceGroupName: '$(AZ_Customer_Prefix)-slfd-uat-rg-01'
+                location: "$(Azure_Resource_Location_Formatted)"
+                templateLocation: 'Linked artifact'
+                csmFile: Analytics\Azure.Resources\Azure.Resources.SynapseLink.SynapseDedicatedDB\AZ.SynapseLink-SynapseDedicatedDB.bicep
+                csmParametersFile: Analytics\Azure.Resources\Azure.Resources.SynapseLink.SynapseDedicatedDB\AZ.SynapseLink-SynapseDedicatedDB.Parameters.json
+                overrideParameters: >
+                    -AZ_Subscription_id $(Azure_Subscription_Id)
+                    -AZ_ResourceGroup_Name $(AZ_Customer_Prefix)-slfd-uat-rg-01 
+                    -AZ_Resource_Location $(Azure_Resource_Location) 
+                    -AZ_Resource_Location_Formatted "$(Azure_Resource_Location_Formatted)"
+                    -AZ_SynapseWorkspace_Name slfd-uat-sw-01
+                    -AZ_SynapseWorkspace_Linked_StorageAccount_defaultfilesystem slfdsaplaceholder
+                    -AZ_SynapseWorkspace_SQL_Local_Username $(AZ_SynapseWorkspace_SQL_Local_Username)
+                    -AZ_SynapseWorkspace_Managed_ResourceGroupName $(AZ_Customer_Prefix)-slfd-uat-mrg-01
+                    -AZ_SynapseWorkspace_EntraID_Admin_ObjectID $(Primary_EntraID_Admin_SID)
+                    -AZ_SparkPool_SynapseWorkspace_Name $(AZ_Customer_Prefix)slfduataps
+                    -AZ_SparkPool_AutoScale true
+                    -AZ_SparkPool_IsolatedCompute false
+                    -AZ_SparkPool_MinNodeCount 5
+                    -AZ_SparkPool_MaxNodeCount 10
+                    -AZ_SparkPool_NodeCount 0
+                    -AZ_SparkPool_NodeSizeFamily MemoryOptimized
+                    -AZ_SparkPool_NodeSize small
+                    -AZ_SparkPool_AutoPause true
+                    -AZ_SparkPool_AutoPauseDelay 5
+                    -AZ_SparkPool_Version 3.3
+                    -AZ_SparkPool_ConfigFile_Name 
+                    -AZ_SparkPool_ConfigFile_PropertiesContent 
+                    -AZ_SparkPool_SessionLevelPackages true
+                    -AZ_SparkPool_DynamicExecutorAllocation false
+                    -AZ_SparkPool_MinExecutorCount 0
+                    -AZ_SparkPool_MaxExecutorCount 0
+                    -AZ_SparkPool_CacheSize 50
+                    -AZ_StorageAccount_Name $(AZ_Customer_Prefix)slfduatsa01
+                    -AZ_SynapseWorkspace_SQL_Local_Password $(AZ_SynapseWorkspace_SQL_Local_Password)
+                    -AZ_SynapseWorkspace_DedicatedSQL_Name  $(AZ_Customer_Prefix)$(AZ_SynapseWorkspace_DedicatedSQL_Name)
+                    -AZ_SynapseWorkspace_DecicatedSQL_Pool_SKU DW100c
+                    -AZ_SynapseWorkspace_DecicatedSQL_Pool_Capacity 0
+                    -AZ_SynapseWorkspace_DecicatedSQL_MaxSize 263882790666240
+                    -AZ_KeyVault_Name $(AZ_Customer_Prefix)-slfd-uat-kv
+                    -AZ_KeyVault_Sku Standard
+                    -AZ_KeyVault_Family A
+                    -AZ_KeyVault_TenantId $(Azure_Tenant_Id)
+                    -AZ_KeyVault_EnabledForDeployment true
+                    -AZ_KeyVault_EnabledForTemplateDeployment true
+                    -AZ_KeyVault_EnabledForDiskEncryption false
+                    -AZ_KeyVault_EnabledForRBACAuthorization false
+                    -AZ_KeyVault_Public_Network_Access Enabled
+                    -AZ_KeyVault_SoftDelete_Enabled true
+                    -AZ_KeyVault_SoftDelete_RetentionDays 60
+  
+                deploymentMode: 'Incremental'
+
+
+
+- stage: SLFDAzureResourceDeploymentProduction
+  displayName: 'SLFDAzureResourceDeploymentProduction'
+  condition: contains(variables['Build.SourceBranch'], 'release')
+  variables:
+    - group: SLFD - Secure Production Variables
+    #Synapse Link Resource Specific Variables
+    - name: AZ_SynapseWorkspace_Name
+      value: 'slfd-prod-sw-01'
+    - name: AZ_SynapseWorkspace_SQL_Local_Username
+      value: 'slfdprodsqladmin'
+    - name: AZ_SynapseWorkspace_DedicatedSQL_Name
+      value: slfddedicateddb
+  jobs:
+  - deployment: 'SLFDAzureResourceDeploymentprod'
+    displayName: 'SLFD Environment Production'
+    environment: Production
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - checkout: self
+            - task: AzureResourceManagerTemplateDeployment@3
+              inputs:
+                deploymentScope: 'Resource Group'
+                azureResourceManagerConnection: "$(Devops_Service_Connection_Name)"
+                subscriptionId: $(Azure_Subscription_Id)
+                action: 'Create Or Update Resource Group'
+                resourceGroupName: 'slfd-prod-rg-01'
+                location: "$(Azure_Resource_Location_Formatted)"
+                templateLocation: 'Linked artifact'
+                csmFile: Analytics\Azure.Resources\Azure.Resources.SynapseLink.SynapseDedicatedDB\AZ.SynapseLink-SynapseDedicatedDB.bicep
+                csmParametersFile: Analytics\Azure.Resources\Azure.Resources.SynapseLink.SynapseDedicatedDB\AZ.SynapseLink-SynapseDedicatedDB.Parameters.json
+                overrideParameters: >
+                    -AZ_Subscription_id $(Azure_Subscription_Id)
+                    -AZ_ResourceGroup_Name slfd-prod-rg-01 
+                    -AZ_Resource_Location $(Azure_Resource_Location) 
+                    -AZ_Resource_Location_Formatted "$(Azure_Resource_Location_Formatted)"
+                    -AZ_SynapseWorkspace_Name $(AZ_SynapseWorkspace_Name)
+                    -AZ_SynapseWorkspace_Linked_StorageAccount_defaultfilesystem slfdsaplaceholder
+                    -AZ_SynapseWorkspace_SQL_Local_Username $(AZ_SynapseWorkspace_SQL_Local_Username)
+                    -AZ_SynapseWorkspace_Managed_ResourceGroupName slfd-prod-mrg-01
+                    -AZ_SynapseWorkspace_EntraID_Admin_ObjectID $(Primary_EntraID_Admin_SID)
+                    -AZ_SparkPool_SynapseWorkspace_Name slfdprodaps
+                    -AZ_SparkPool_AutoScale true
+                    -AZ_SparkPool_IsolatedCompute false
+                    -AZ_SparkPool_MinNodeCount 5
+                    -AZ_SparkPool_MaxNodeCount 10
+                    -AZ_SparkPool_NodeCount 0
+                    -AZ_SparkPool_NodeSizeFamily MemoryOptimized
+                    -AZ_SparkPool_NodeSize small
+                    -AZ_SparkPool_AutoPause true
+                    -AZ_SparkPool_AutoPauseDelay 5
+                    -AZ_SparkPool_Version 3.3
+                    -AZ_SparkPool_ConfigFile_Name 
+                    -AZ_SparkPool_ConfigFile_PropertiesContent 
+                    -AZ_SparkPool_SessionLevelPackages true
+                    -AZ_SparkPool_DynamicExecutorAllocation false
+                    -AZ_SparkPool_MinExecutorCount 0
+                    -AZ_SparkPool_MaxExecutorCount 0
+                    -AZ_SparkPool_CacheSize 50
+                    -AZ_StorageAccount_Name $(AZ_Customer_Prefix)slfdprodsa01
+                    -AZ_SynapseWorkspace_SQL_Local_Password $(AZ_SynapseWorkspace_SQL_Local_Password)
+                    -AZ_SynapseWorkspace_DedicatedSQL_Name  $(AZ_Customer_Prefix)$(AZ_SynapseWorkspace_DedicatedSQL_Name)
+                    -AZ_SynapseWorkspace_DecicatedSQL_Pool_SKU DW100c
+                    -AZ_SynapseWorkspace_DecicatedSQL_Pool_Capacity 0
+                    -AZ_SynapseWorkspace_DecicatedSQL_MaxSize 263882790666240
+                    -AZ_KeyVault_Name $(AZ_Customer_Prefix)-slfd-prod-kv
+                    -AZ_KeyVault_Sku Standard
+                    -AZ_KeyVault_Family A
+                    -AZ_KeyVault_TenantId $(Azure_Tenant_Id)
+                    -AZ_KeyVault_EnabledForDeployment true
+                    -AZ_KeyVault_EnabledForTemplateDeployment true
+                    -AZ_KeyVault_EnabledForDiskEncryption false
+                    -AZ_KeyVault_EnabledForRBACAuthorization false
+                    -AZ_KeyVault_Public_Network_Access Enabled
+                    -AZ_KeyVault_SoftDelete_Enabled true
+                    -AZ_KeyVault_SoftDelete_RetentionDays 60
+  
+                deploymentMode: 'Incremental'
+
+

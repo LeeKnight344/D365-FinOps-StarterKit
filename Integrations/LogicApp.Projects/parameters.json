@@ -1,0 +1,18 @@
+{
+    "AZ_Tenant_ID": {
+        "type": "String",
+        "value": "@appsetting('Azure Tenant ID')"
+    },
+    "AZ_APIS_Dataverse_URL": {
+        "type": "String",
+        "value": "@appsetting('Dataverse URL')"
+    },
+    "AZ_APIS_Dataverse_Client_ID": {
+        "type": "String",
+        "value": "@appsetting('Dataverse_Client_Id')"
+    },
+    "AZ_APIS_Dataverse_Client_Secret": {
+        "type": "String",
+        "value": "@appsetting('Dataverse_Client_Secret')"
+    }
+}

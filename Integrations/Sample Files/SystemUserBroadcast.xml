@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SystemUserBroadcast xmlns:var="http://schemas.microsoft.com/BizTalk/2003/var"
+    xmlns:userCSharp="http://schemas.microsoft.com/BizTalk/2003/userCSharp"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <Context>
+        <SourceSystem>D365</SourceSystem>
+        <BroadcastType>Update</BroadcastType>
+        <BroadcastIdentifier>SystemUserBroadcast</BroadcastIdentifier>
+        <SentAt>2024-10-10T10:18:33Z</SentAt>
+    </Context>
+    <UserID>ANNLeeKnight</UserID>
+    <UserDisplayName>Lee Knight</UserDisplayName>
+    <Email>lee.knight@smt.network</Email>
+    <LegalEntity>1GB1</LegalEntity>
+    <Language>en-us</Language>
+    <AutoLogOff>Disabled0</AutoLogOff>
+    <Enabled>200000000</Enabled>
+</SystemUserBroadcast>

@@ -1,0 +1,517 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:element name="root">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="BusinessUnitId" type="xs:string" />
+				<xs:element name="CorrelationId" type="xs:string" />
+				<xs:element name="Depth" type="xs:unsignedByte" />
+				<xs:element name="InitiatingUserAgent" type="xs:string" />
+				<xs:element name="InitiatingUserAzureActiveDirectoryObjectId" type="xs:string" />
+				<xs:element name="InitiatingUserId" type="xs:string" />
+				<xs:element maxOccurs="unbounded" name="InputParameters">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="key" type="xs:string" />
+							<xs:element name="value">
+								<xs:complexType mixed="true">
+									<xs:sequence minOccurs="0">
+										<xs:element name="__type" type="xs:string" />
+										<xs:element name="mserp_defaultcountryregion">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value" />
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_documenthandlingactive">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value">
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="__type" type="xs:string" />
+																<xs:element name="Value" type="xs:unsignedInt" />
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_showattachmentstatus">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value">
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="__type" type="xs:string" />
+																<xs:element name="Value" type="xs:unsignedInt" />
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_email">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value" />
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_sendalertasemailmessage">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value">
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="__type" type="xs:string" />
+																<xs:element name="Value" type="xs:unsignedInt" />
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_eventpollfrequency">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value" type="xs:unsignedByte" />
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_eventpopupdisplaywhen">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value">
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="__type" type="xs:string" />
+																<xs:element name="Value" type="xs:unsignedInt" />
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_eventpopuplinkdestination">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value">
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="__type" type="xs:string" />
+																<xs:element name="Value" type="xs:unsignedInt" />
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_eventpopups">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value">
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="__type" type="xs:string" />
+																<xs:element name="Value" type="xs:unsignedInt" />
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_eventworkflowshowpopup">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value">
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="__type" type="xs:string" />
+																<xs:element name="Value" type="xs:unsignedInt" />
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_shownotificationsinthemicrosoftdynamicsax7client">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value">
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="__type" type="xs:string" />
+																<xs:element name="Value" type="xs:unsignedInt" />
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_sendnotificationsinemail">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value">
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="__type" type="xs:string" />
+																<xs:element name="Value" type="xs:unsignedInt" />
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_markemptylinks">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value">
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="__type" type="xs:string" />
+																<xs:element name="Value" type="xs:unsignedInt" />
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_userid">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value" type="xs:string" />
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_language">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value" />
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_sqmenabled">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value">
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="__type" type="xs:string" />
+																<xs:element name="Value" type="xs:unsignedInt" />
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_sqmguid">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value" type="xs:string" />
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_workflowlineitemnotificationformat">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value">
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="__type" type="xs:string" />
+																<xs:element name="Value" type="xs:unsignedInt" />
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_theme">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value">
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="__type" type="xs:string" />
+																<xs:element name="Value" type="xs:unsignedInt" />
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_startpage">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value" />
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_emailproviderid">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value" />
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_username">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value" type="xs:string" />
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_enabled">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value">
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="__type" type="xs:string" />
+																<xs:element name="Value" type="xs:unsignedInt" />
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_company">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value" type="xs:string" />
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_autologoff">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value" type="xs:unsignedByte" />
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_networkdomain">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value" type="xs:string" />
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_alias">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value" type="xs:string" />
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_externaluser">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value">
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="__type" type="xs:string" />
+																<xs:element name="Value" type="xs:unsignedInt" />
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_userinfo_language">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value" type="xs:string" />
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_helplanguage">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value" type="xs:string" />
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_preferredtimezone">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value">
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="__type" type="xs:string" />
+																<xs:element name="Value" type="xs:unsignedInt" />
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_preferredcalendar">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value">
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="__type" type="xs:string" />
+																<xs:element name="Value" type="xs:unsignedInt" />
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_homepagerefreshduration">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value" type="xs:unsignedByte" />
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_globallistpagelinkmode">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value" type="xs:unsignedByte" />
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_globalexcelexportmode">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value" type="xs:unsignedByte" />
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_userinfo_defaultpartition">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value">
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="__type" type="xs:string" />
+																<xs:element name="Value" type="xs:unsignedInt" />
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_globalexcelexportfilepath">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value" />
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_preferredlocale">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value" />
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_accounttype">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value">
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="__type" type="xs:string" />
+																<xs:element name="Value" type="xs:unsignedInt" />
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_personname">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value" />
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_automaticurlupdate">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value">
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="__type" type="xs:string" />
+																<xs:element name="Value" type="xs:unsignedInt" />
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_eventworkflowtasksinactioncenter">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value">
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="__type" type="xs:string" />
+																<xs:element name="Value" type="xs:unsignedInt" />
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="mserp_systemuserentityid">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="value" type="xs:string" />
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="EntityState" />
+										<xs:element name="Id" type="xs:string" />
+										<xs:element name="LogicalName" type="xs:string" />
+										<xs:element name="RowVersion" />
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="IsExecutingOffline" type="xs:boolean" />
+				<xs:element name="IsInTransaction" type="xs:boolean" />
+				<xs:element name="IsOfflinePlayback" type="xs:boolean" />
+				<xs:element name="IsolationMode" type="xs:unsignedByte" />
+				<xs:element name="MessageName" type="xs:string" />
+				<xs:element name="Mode" type="xs:unsignedByte" />
+				<xs:element name="OperationCreatedOn" type="xs:dateTime" />
+				<xs:element name="OperationId" type="xs:string" />
+				<xs:element name="OrganizationId" type="xs:string" />
+				<xs:element name="OrganizationName" type="xs:string" />
+				<xs:element name="OwningExtension">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="Id" type="xs:string" />
+							<xs:element name="LogicalName" type="xs:string" />
+							<xs:element name="Name" />
+							<xs:element name="RowVersion" />
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="ParentContext" />
+				<xs:element name="PrimaryEntityId" type="xs:string" />
+				<xs:element name="PrimaryEntityName" type="xs:string" />
+				<xs:element name="RequestId" type="xs:string" />
+				<xs:element name="SecondaryEntityName" type="xs:string" />
+				<xs:element maxOccurs="unbounded" name="SharedVariables">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="key" type="xs:string" />
+							<xs:element name="value" type="xs:string" />
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="Stage" type="xs:unsignedByte" />
+				<xs:element name="UserAzureActiveDirectoryObjectId" type="xs:string" />
+				<xs:element name="UserId" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

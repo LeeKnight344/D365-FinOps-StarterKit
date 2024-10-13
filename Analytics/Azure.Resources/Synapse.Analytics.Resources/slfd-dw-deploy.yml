@@ -1,0 +1,148 @@
+trigger:
+  branches:
+    include:
+    - main
+    - Development
+    - workspace_publish
+  paths:
+    include:
+      - 'Analytics/slfd-dev-sw-01/TemplateForWorkspace.json'
+
+pool:
+  vmImage: 'windows-latest'
+
+
+
+variables:
+  Devops_Service_Connection_Name: 'Sandbox - PAYG'
+  Devops_Service_Principal: 'ee797751-c283-4f26-a4e4-87a0116197cb'
+  Primary_EntraID_Admin_Email: 'leek@the-sandbox.co.uk'  #Variable for UPN of Entra ID Admin
+  Primary_EntraID_Admin_SID: 'eb5001b9-8346-476a-b26a-77952ce01f70'
+  Azure_Subscription_Id: '262069d1-4249-43a7-acc3-55714500fc42' #Variable for Azure Subscription ID
+  Azure_Tenant_Id: '3dccfdf8-200b-47e3-afff-4a495b603cc2'
+  Azure_Resource_Location: 'ukwest'
+  Azure_Resource_Location_Formatted: 'UK West'
+
+
+stages: 
+
+
+
+- stage: SLFD_Deploy_SW_UAT
+  displayName: 'Deploy SW UAT'
+  variables:
+    - group: SLFD - Secure UAT Variables
+  jobs:
+  - deployment: SLFD_Deploy_SW_UAT
+    displayName: 'Deploy Synapse Workspace Code'
+    environment: Development
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - checkout: self
+          - task: Synapse workspace deployment@2
+            inputs:
+              operation: 'deploy'
+              TemplateFile: '$(System.DefaultWorkingDirectory)/slfd-dev-sw-01/TemplateForWorkspace.json'
+              ParametersFile: '$(System.DefaultWorkingDirectory)/slfd-dev-sw-01/TemplateParametersForWorkspace.json'
+              azureSubscription: $(Devops_Service_Connection_Name)
+              ResourceGroupName: 'slfd-uat-rg-01'
+              TargetWorkspaceName: 'slfd-uat-sw-01'
+              DeleteArtifactsNotInTemplate: false
+              DeployManagedPrivateEndpoints: false
+              OverrideArmParameters: >
+                -workspaceName "slfd-uat-sw-01"
+                -slfd-dev-sw-01-WorkspaceDefaultSqlServer_connectionString "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=tcp:slfd-dev-sw-01.sql.azuresynapse.net,1433;Initial Catalog=@{linkedService().DBName}"
+                -DVLinkToSQL_IncrementalCopy_properties_parameters_SourceDbName_type "string"
+                -DVLinkToSQL_IncrementalCopy_properties_parameters_SourceDbName_defaultValue "$(AZ_SynapseWorkspace_SQL_Serverless_DbName)"
+                -DVLinkToSQL_IncrementalCopy_properties_parameters_SourceDbServer_type "string"
+                -DVLinkToSQL_IncrementalCopy_properties_parameters_SourceDbServer_defaultValue "$(AZ_SynapseWorkspace_SQL_Serverless_DbName).sql.azuresynapse.net"
+                -DVLinkToSQL_IncrementalCopy_properties_parameters_TargetDbServer_type "string"
+                -DVLinkToSQL_IncrementalCopy_properties_parameters_TargetDbServer_defaultValue "$(AZ_SynapseWorkspace_Name).database.windows.net"
+                -DVLinkToSQL_IncrementalCopy_properties_parameters_TargetDbName_type "string"
+                -DVLinkToSQL_IncrementalCopy_properties_parameters_TargetDbName_defaultValue "$(AZ_SQLDB_Name)"
+                -DVLinkToSQL_IncrementalCopy_properties_parameters_TargetSchema_type "string"
+                -DVLinkToSQL_IncrementalCopy_properties_parameters_TargetSchema_defaultValue "dbo"
+                -DVLinkToSQL_IncrementalCopy_properties_parameters_StorageDataLocation_type "string"
+                -DVLinkToSQL_IncrementalCopy_properties_parameters_StorageDataLocation_defaultValue "https://slfduatsa01.dfs.core.windows.net/dataverse-powerplatfor-unq73ca9dab7c5cef11bfdd7c1e52030/"
+                -DVLinkToSQL_IncrementalCopy_properties_parameters_SourceSchema_type "string"
+                -DVLinkToSQL_IncrementalCopy_properties_parameters_SourceSchema_defaultValue "dbo"
+                -DVLinkToSQL_IncrementalCopy_properties_parameters_IncrementalCSV_type "bool"
+                -DVLinkToSQL_IncrementalCopy_properties_parameters_IncrementalCSV_defaultValue "true"
+                -DVLinkToSQL_IncrementalCopy_properties_parameters_Add_EDL_AuditColumns_type "bool"
+                -DVLinkToSQL_IncrementalCopy_properties_parameters_Add_EDL_AuditColumns_defaultValue "false"
+                -DVLinkToSQL_IncrementalCopy_properties_parameters_GenerateSourceMetadata_type "bool"
+                -DVLinkToSQL_IncrementalCopy_properties_parameters_GenerateSourceMetadata_defaultValue "true"
+                -DVLinkToSQL_IncrementalCopy_properties_parameters_Remove_mserp__prefix_type "bool"
+                -DVLinkToSQL_IncrementalCopy_properties_parameters_Remove_mserp__prefix_defaultValue "false"
+                -DVLinkToSQL_IncrementalCopy_properties_parameters_translate_enums_type "bool"
+                -DVLinkToSQL_IncrementalCopy_properties_parameters_translate_enums_defaultValue "false"
+                -DVLinkToSQL_IncrementalCopy_properties_parameters_translate_BYOD_enums_type "bool"
+                -DVLinkToSQL_IncrementalCopy_properties_parameters_translate_BYOD_enums_defaultValue "false"
+                -Source_SQL_Database_properties_typeProperties_connectionString "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=@{linkedService().SourceDbServer};Initial Catalog=@{linkedService().SourceDbName}"
+                -slfd_kv_properties_typeProperties_baseUrl "https://slfd-uat-kv-01.vault.azure.net/"
+                
+              FailOnMissingOverrides: false
+              Environment: 'prod'
+              npmpackage: 'prod'
+            displayName: 'Deploy Synapse Workspace Code'
+
+- stage: SLFD_Deploy_SW_Prod
+  displayName: 'Deploy SW UAT'
+  variables:
+    - group: SLFD - Secure Production Variables
+  jobs:
+  - deployment: SLFD_Deploy_SW_Prod
+    displayName: 'Deploy Synapse Workspace Code'
+    environment: Development
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - checkout: self
+          - task: Synapse workspace deployment@2
+            inputs:
+              operation: 'deploy'
+              TemplateFile: '$(System.DefaultWorkingDirectory)/slfd-dev-sw-01/TemplateForWorkspace.json'
+              ParametersFile: '$(System.DefaultWorkingDirectory)/slfd-dev-sw-01/TemplateParametersForWorkspace.json'
+              azureSubscription: $(Devops_Service_Connection_Name)
+              ResourceGroupName: 'slfd-prod-rg-01'
+              TargetWorkspaceName: 'slfd-prod-sw-01'
+              DeleteArtifactsNotInTemplate: false
+              DeployManagedPrivateEndpoints: false
+              OverrideArmParameters: >
+                -workspaceName "slfd-prod-sw-01"
+                -slfd-dev-sw-01-WorkspaceDefaultSqlServer_connectionString "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=tcp:slfd-dev-sw-01.sql.azuresynapse.net,1433;Initial Catalog=@{linkedService().DBName}"
+                -DVLinkToSQL_IncrementalCopy_properties_parameters_SourceDbName_type "string"
+                -DVLinkToSQL_IncrementalCopy_properties_parameters_SourceDbName_defaultValue "$(AZ_SynapseWorkspace_SQL_Serverless_DbName)"
+                -DVLinkToSQL_IncrementalCopy_properties_parameters_SourceDbServer_type "string"
+                -DVLinkToSQL_IncrementalCopy_properties_parameters_SourceDbServer_defaultValue "$(AZ_SynapseWorkspace_SQL_Serverless_DbName).sql.azuresynapse.net"
+                -DVLinkToSQL_IncrementalCopy_properties_parameters_TargetDbServer_type "string"
+                -DVLinkToSQL_IncrementalCopy_properties_parameters_TargetDbServer_defaultValue "$(AZ_SynapseWorkspace_Name).database.windows.net"
+                -DVLinkToSQL_IncrementalCopy_properties_parameters_TargetDbName_type "string"
+                -DVLinkToSQL_IncrementalCopy_properties_parameters_TargetDbName_defaultValue "$(AZ_SQLDB_Name)"
+                -DVLinkToSQL_IncrementalCopy_properties_parameters_TargetSchema_type "string"
+                -DVLinkToSQL_IncrementalCopy_properties_parameters_TargetSchema_defaultValue "dbo"
+                -DVLinkToSQL_IncrementalCopy_properties_parameters_StorageDataLocation_type "string"
+                -DVLinkToSQL_IncrementalCopy_properties_parameters_StorageDataLocation_defaultValue "https://slfdprodsa01.dfs.core.windows.net/dataverse-powerplatfor-unq73ca9dab7c5cef11bfdd7c1e52030/"
+                -DVLinkToSQL_IncrementalCopy_properties_parameters_SourceSchema_type "string"
+                -DVLinkToSQL_IncrementalCopy_properties_parameters_SourceSchema_defaultValue "dbo"
+                -DVLinkToSQL_IncrementalCopy_properties_parameters_IncrementalCSV_type "bool"
+                -DVLinkToSQL_IncrementalCopy_properties_parameters_IncrementalCSV_defaultValue "true"
+                -DVLinkToSQL_IncrementalCopy_properties_parameters_Add_EDL_AuditColumns_type "bool"
+                -DVLinkToSQL_IncrementalCopy_properties_parameters_Add_EDL_AuditColumns_defaultValue "false"
+                -DVLinkToSQL_IncrementalCopy_properties_parameters_GenerateSourceMetadata_type "bool"
+                -DVLinkToSQL_IncrementalCopy_properties_parameters_GenerateSourceMetadata_defaultValue "true"
+                -DVLinkToSQL_IncrementalCopy_properties_parameters_Remove_mserp__prefix_type "bool"
+                -DVLinkToSQL_IncrementalCopy_properties_parameters_Remove_mserp__prefix_defaultValue "false"
+                -DVLinkToSQL_IncrementalCopy_properties_parameters_translate_enums_type "bool"
+                -DVLinkToSQL_IncrementalCopy_properties_parameters_translate_enums_defaultValue "false"
+                -DVLinkToSQL_IncrementalCopy_properties_parameters_translate_BYOD_enums_type "bool"
+                -DVLinkToSQL_IncrementalCopy_properties_parameters_translate_BYOD_enums_defaultValue "false"
+                -Source_SQL_Database_properties_typeProperties_connectionString "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=@{linkedService().SourceDbServer};Initial Catalog=@{linkedService().SourceDbName}"
+                -slfd_kv_properties_typeProperties_baseUrl "https://slfd-prod-kv-01.vault.azure.net/"
+              FailOnMissingOverrides: false
+              Environment: 'prod'
+              npmpackage: 'prod'
+            displayName: 'Deploy Synapse Workspace Code'

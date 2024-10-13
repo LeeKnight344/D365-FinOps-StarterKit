@@ -1,0 +1,117 @@
+trigger:
+  paths:
+    include:
+      - 'Integrations/LogicApp.Projects/*'
+
+pool:
+ VmImage: 'windows-latest'
+
+variables:
+  Devops_Service_Connection_Name: 'Sandbox - PAYG'
+  Devops_Service_Principal: 'ee797751-c283-4f26-a4e4-87a0116197cb'
+  Primary_EntraID_Admin_Email: 'leek@the-sandbox.co.uk'  #Variable for UPN of Entra ID Admin
+  Primary_EntraID_Admin_SID: 'eb5001b9-8346-476a-b26a-77952ce01f70'
+  Azure_Subscription_Id: '262069d1-4249-43a7-acc3-55714500fc42' #Variable for Azure Subscription ID
+  Azure_Tenant_Id: '3dccfdf8-200b-47e3-afff-4a495b603cc2'
+  Azure_Resource_Location: 'ukwest'
+  Azure_Resource_Location_Formatted: 'UK West'
+  AZ_Customer_Prefix: 'lks'
+
+
+
+stages:
+- stage: LogicBuildDeployDev
+  condition: eq(variables['Build.SourceBranchName'], 'Development')
+  jobs:
+  - job: logic_app_build_deploy_dev
+    displayName: 'Build & Deploy Logic Workflows'
+    steps:
+    - task: CopyFiles@2
+      displayName: 'Create project folder'
+      inputs:
+        SourceFolder: '$(System.DefaultWorkingDirectory)/Integrations/LogicApp.Projects'
+        Contents: '**'
+        TargetFolder: 'project_output'
+        CleanTargetFolder: true
+
+    - task: ArchiveFiles@2
+      displayName: 'Create project zip'
+      inputs:
+        rootFolderOrFile: '$(System.DefaultWorkingDirectory)/project_output/'
+        includeRootFolder: false
+        archiveType: 'zip'
+        archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
+        replaceExistingArchive: true
+
+    - task: AzureFunctionApp@2
+      inputs:
+        connectedServiceNameARM: $(Devops_Service_Connection_Name)
+        appType: 'functionApp'
+        appName: '$(AZ_Customer_Prefix)-integrations-dev-logic-01'
+        package: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
+        deploymentMethod: 'zipDeploy'
+
+- stage: LogicBuildDeployuat
+  condition: eq(variables['Build.SourceBranchName'], 'main')
+  jobs:
+  - job: logic_app_build_deploy_qa
+  
+    displayName: 'Build & Deploy Logic Workflows'
+    steps:
+    - task: CopyFiles@2
+      displayName: 'Create project folder'
+      inputs:
+        SourceFolder: '$(System.DefaultWorkingDirectory)/Integrations/LogicApp.Projects'
+        Contents: '**'
+        TargetFolder: 'project_output'
+        CleanTargetFolder: true
+
+    - task: ArchiveFiles@2
+      displayName: 'Create project zip'
+      inputs:
+        rootFolderOrFile: '$(System.DefaultWorkingDirectory)/project_output/'
+        includeRootFolder: false
+        archiveType: 'zip'
+        archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
+        replaceExistingArchive: true
+
+    - task: AzureFunctionApp@2
+      inputs:
+        connectedServiceNameARM: $(Devops_Service_Connection_Name)
+        appType: 'functionApp'
+        appName: '$(AZ_Customer_Prefix)-integrations-uat-logic-01'
+        package: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
+        deploymentMethod: 'zipDeploy'
+
+- stage: LogicBuildDeployprod
+  condition: succeeded()
+  jobs:
+  - job: logic_app_build_deploy_crp
+    displayName: 'Build & Deploy Logic Workflows'
+    steps:
+    - task: CopyFiles@2
+      displayName: 'Create project folder'
+      inputs:
+        SourceFolder: '$(System.DefaultWorkingDirectory)/Integrations/LogicApp.Projects'
+        Contents: '**'
+        TargetFolder: 'project_output'
+        CleanTargetFolder: true
+
+    - task: ArchiveFiles@2
+      displayName: 'Create project zip'
+      inputs:
+        rootFolderOrFile: '$(System.DefaultWorkingDirectory)/project_output/'
+        includeRootFolder: false
+        archiveType: 'zip'
+        archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
+        replaceExistingArchive: true
+
+    - task: AzureFunctionApp@2
+      inputs:
+        connectedServiceNameARM: $(Devops_Service_Connection_Name)
+        appType: 'functionApp'
+        appName: '$(AZ_Customer_Prefix)-integrations-prod-logic-01'
+        package: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
+        deploymentMethod: 'zipDeploy'
+
+

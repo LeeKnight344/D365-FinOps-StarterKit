@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:element name="CustomerQueryRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="Context">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="SourceSystem" type="xs:string" />
+							<xs:element name="BroadcastType">
+								<xs:simpleType>
+									<xs:restriction base="xs:string">
+										<xs:enumeration value="Update" />
+										<xs:enumeration value="Create" />
+										<xs:enumeration value="Delete" />
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:element>
+							<xs:element name="BroadcastIdentifier" type="xs:string" />
+							<xs:element name="SentAt" type="xs:dateTime" />
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="CustomerID" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

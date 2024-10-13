@@ -1,0 +1,386 @@
+trigger:
+  branches:
+    include:
+      - main
+      - Development
+      - release/*
+  paths:
+    include:
+      - 'Analytics/Analytics/Azure.Resources/Azure.Resources.SynapseLink.AzureHostedDB/AZ.SynapseLink-AzureHostedDB.bicep'
+
+
+
+
+pool:
+  #name: #Your Pool Name here
+  vmImage: windows-latest #Use this for Azure hosted Agents
+
+variables:
+  Devops_Service_Connection_Name: 'Sandbox - PAYG'
+  Devops_Service_Principal: 'ee797751-c283-4f26-a4e4-87a0116197cb'
+  Primary_EntraID_Admin_Email: 'leek@the-sandbox.co.uk'  #Variable for UPN of Entra ID Admin
+  Primary_EntraID_Admin_SID: 'eb5001b9-8346-476a-b26a-77952ce01f70'
+  Azure_Subscription_Id: '262069d1-4249-43a7-acc3-55714500fc42' #Variable for Azure Subscription ID
+  Azure_Tenant_Id: '3dccfdf8-200b-47e3-afff-4a495b603cc2'
+  Azure_Resource_Location: 'ukwest'
+  Azure_Resource_Location_Formatted: 'UK West'
+  AZ_Customer_Prefix: 'lks'
+  #Synapse Link Resource Specific Variables
+  # AZ_SQLDB_Name: 'slfd-adw-db-dev-01'
+  # #AZ_SQLHost_Local_Admin_Password
+  # AZ_SQLHost_Local_Admin_Username: 'adwsqldev01'
+  # AZ_SQLHost_Name: 'AZ_SQLHost_Name'
+  # #AZ_SynapseWorkspace_DedicatedSQL_Name: ''
+  # AZ_SynapseWorkspace_Name: 'slfd-dev-sw-01'
+  # AZ_SynapseWorkspace_SQL_Local_Password: ''
+  # AZ_SynapseWorkspace_SQL_Local_Username: 'slfddevsqladmin'
+  # AZ_SynapseWorkspace_SQL_Serverless_DbName: ''
+  # # AZ_SynapseWorkspace_SQL_Serverless_DbName:
+
+
+  
+
+
+stages:
+- stage: SLFDAzureResourceDeploymentDev
+  displayName: 'SLFDAzureResourceDeploymentDev'
+  condition: eq(variables['Build.SourceBranchName'], 'Development')
+  variables:
+    - group: SLFD - Secure Development Variables
+      #Synapse Link Resource Specific Variables
+    - name: AZ_SQLDB_Name
+      value: 'slfd-adw-db-dev-01'
+    - name: AZ_SQLHost_Local_Admin_Username
+      value: 'adwsqldev01'
+    - name: AZ_SQLHost_Name
+      value: 'slfd-adw-serv-dev-01'
+    - name: AZ_SynapseWorkspace_Name
+      value: 'slfd-dev-sw-01'
+    - name: AZ_SynapseWorkspace_SQL_Local_Username
+      value: 'slfddevsqladmin'
+    
+  jobs:
+  - deployment: 'SLFDAzureResourceDeploymentDev'
+    displayName: 'SLFD Environment Dev'
+    environment: Development
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - checkout: self
+            - task: AzureResourceManagerTemplateDeployment@3
+              inputs:
+                deploymentScope: 'Resource Group'
+                azureResourceManagerConnection: "$(Devops_Service_Connection_Name)"
+                subscriptionId: $(Azure_Subscription_Id)
+                action: 'Create Or Update Resource Group'
+                resourceGroupName: '$(AZ_Customer_Prefix)-slfd-dev-rg-01'
+                location: "$(Azure_Resource_Location_Formatted)"
+                templateLocation: 'Linked artifact'
+                csmFile: Analytics\Azure.Resources\Azure.Resources.SynapseLink.AzureHostedDB\AZ.SynapseLink-AzureHostedDB.bicep
+                csmParametersFile: Analytics\Azure.Resources\Azure.Resources.SynapseLink.AzureHostedDB\AZ.SynapseLink-AzureHostedDB.Parameters.json
+                overrideParameters: >
+                  -AZ_Subscription_id $(Azure_Subscription_Id)
+                  -AZ_ResourceGroup_Name $(AZ_Customer_Prefix)-slfd-dev-rg-01
+                  -AZ_Resource_Location $(Azure_Resource_Location)
+                  -AZ_SynapseWorkspace_Name $(AZ_Customer_Prefix)-slfd-dev-sw-01
+                  -AZ_SynapseWorkspace_Linked_StorageAccount_defaultfilesystem slfdsaplaceholder
+                  -AZ_SynapseWorkspace_SQL_Local_Username $(AZ_Customer_Prefix)-$(AZ_SynapseWorkspace_SQL_Local_Username)
+                  -AZ_SynapseWorkspace_Managed_ResourceGroupName $(AZ_Customer_Prefix)-slfd-dev-mrg-01
+                  -AZ_SynapseWorkspace_EntraID_Admin_ObjectID $(Primary_EntraID_Admin_SID)
+                  -AZ_SparkPool_SynapseWorkspace_Name $(AZ_Customer_Prefix)slfddevaps
+                  -AZ_SparkPool_AutoScale true
+                  -AZ_SparkPool_IsolatedCompute false
+                  -AZ_SparkPool_MinNodeCount 5
+                  -AZ_SparkPool_MaxNodeCount 10
+                  -AZ_SparkPool_NodeCount 0
+                  -AZ_SparkPool_NodeSizeFamily MemoryOptimized
+                  -AZ_SparkPool_NodeSize small
+                  -AZ_SparkPool_AutoPause true
+                  -AZ_SparkPool_AutoPauseDelay 5
+                  -AZ_SparkPool_Version 3.3
+                  -AZ_SparkPool_ConfigFile_Name 
+                  -AZ_SparkPool_ConfigFile_PropertiesContent 
+                  -AZ_SparkPool_SessionLevelPackages true
+                  -AZ_SparkPool_DynamicExecutorAllocation false
+                  -AZ_SparkPool_MinExecutorCount 0
+                  -AZ_SparkPool_MaxExecutorCount 0
+                  -AZ_SparkPool_CacheSize 50
+                  -AZ_StorageAccount_Name slfddevsa01
+                  -AZ_SynapseWorkspace_SQL_Local_Password $(AZ_SynapseWorkspace_SQL_Local_Password)
+                  -AZ_SQLHost_Name $(AZ_Customer_Prefix)-slfd-adw-serv-dev-01
+                  -AZ_SQLHost_Local_Admin_Username $(AZ_Customer_Prefix)-$(AZ_SQLHost_Local_Admin_Username)
+                  -AZ_SQLHost_Local_Admin_Password $(AZ_SQLHost_Local_Admin_Password)
+                  -AZ_SQLHost_EntraID_Admin $(Primary_EntraID_Admin_Email)
+                  -AZ_SQLHost_EntraID_Admin_SID $(Primary_EntraID_Admin_SID)
+                  -AZ_SQLHost_Version 12.0
+                  -AZ_SQLHost_TLSMin_Version 1.2
+                  -AZ_SQLHost_PublicAccess Enabled
+                  -AZ_SQLHost_TenantId $(Azure_Tenant_Id)
+                  -AZ_SQLHost_EntraIDAuth_Enforced false
+                  -AZ_SQLHost_OutboundAccess_Restricted Disabled
+                  -AZ_SQLHost_AdminType ActiveDirectory
+                  -AZ_SQLHost_PrincipalType User
+                  -AZ_SQLHost_Kind v12.0
+                  -AZ_SQLHost_FirewallRule_01 "$(AZ_Customer_Prefix) Sample WFH User"
+                  -AZ_SQLHost_FirewallRule_01_StartIP 51.141.37.240
+                  -AZ_SQLHost_FirewallRule_01_EndIP 51.141.37.240
+                  -AZ_SQLDB_Name $(AZ_Customer_Prefix)-slfd-adw-db-dev-01
+                  -AZ_SQLDB_sku_name GP_S_Gen5
+                  -AZ_SQLDB_tier GeneralPurpose
+                  -AZ_SQLDB_family Gen5
+                  -AZ_SQLDB_capacity 1
+                  -AZ_SQLDB_Kind v12.0,user,vcore,serverless
+                  -AZ_SQLDB_Collation SQL_Latin1_General_CP1_CI_AS
+                  -AZ_SQLDB_MaxSize 34359738368
+                  -AZ_SQLDB_Catalog_Collation SQL_Latin1_General_CP1_CI_AS
+                  -AZ_SQLDB_Zone_Redundant false
+                  -AZ_SQLDB_Read_Scale Disabled
+                  -AZ_SQLDB_AutoPause_Delay 60
+                  -AZ_SQLDB_Backup_Storage_Redundancy Local
+                  -AZ_SQLDB_Min_Capacity 0.5
+                  -AZ_SQLDB_Ledger_Enabled false
+                  -AZ_SQLDB_Availibility_Zone NoPreference
+                  -AZ_KeyVault_Name $(AZ_Customer_Prefix)-slfd-dev-kv-01
+                  -AZ_KeyVault_Sku Standard
+                  -AZ_KeyVault_Family A
+                  -AZ_KeyVault_TenantId $(Azure_Tenant_Id)
+                  -AZ_KeyVault_EnabledForDeployment true
+                  -AZ_KeyVault_EnabledForTemplateDeployment true
+                  -AZ_KeyVault_EnabledForDiskEncryption false
+                  -AZ_KeyVault_EnabledForRBACAuthorization false
+                  -AZ_KeyVault_Public_Network_Access Enabled
+                  -AZ_KeyVault_SoftDelete_Enabled true
+                  -AZ_KeyVault_SoftDelete_RetentionDays 60
+
+                deploymentMode: 'Incremental'
+              displayName: 'Deploy Azure Synapse resources using ARM Template'
+
+
+
+#TODO - Add AZCLI task to assign the correct roles to the Entra ID Admin
+
+- stage: SLFDAzureResourceDeploymentUAT
+  displayName: 'SLFDAzureResourceDeploymentUAT'
+  condition: eq(variables['Build.SourceBranchName'], 'main')
+  variables:
+    - group: SLFD - Secure UAT Variables
+      #Synapse Link Resource Specific Variables
+    - name: AZ_SQLDB_Name
+      value: 'slfd-adw-db-uat-01'
+    - name: AZ_SQLHost_Local_Admin_Username
+      value: 'adwsqluat01'
+    - name: AZ_SQLHost_Name
+      value: 'slfd-adw-serv-uat-01'
+    - name: AZ_SynapseWorkspace_Name
+      value: 'slfd-uat-sw-01'
+    - name: AZ_SynapseWorkspace_SQL_Local_Username
+      value: 'slfduatsqladmin'
+  jobs:
+  - deployment: 'SLFDAzureResourceDeploymentUAT'
+    displayName: 'SLFD Environment UAT'
+    environment: UAT
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - checkout: self
+            - task: AzureResourceManagerTemplateDeployment@3
+              inputs:
+                deploymentScope: 'Resource Group'
+                azureResourceManagerConnection: "$(Devops_Service_Connection_Name)"
+                subscriptionId: $(Azure_Subscription_Id)
+                action: 'Create Or Update Resource Group'
+                resourceGroupName: '$(AZ_Customer_Prefix)-slfd-uat-rg-01'
+                location: "$(Azure_Resource_Location_Formatted)"
+                templateLocation: 'Linked artifact'
+                csmFile: Analytics\Azure.Resources\Azure.Resources.SynapseLink.AzureHostedDB\AZ.SynapseLink-AzureHostedDB.bicep
+                csmParametersFile: Analytics\Azure.Resources\Azure.Resources.SynapseLink.AzureHostedDB\AZ.SynapseLink-AzureHostedDB.Parameters.json
+                overrideParameters: >
+                    -AZ_Subscription_id $(Azure_Subscription_Id)
+                    -AZ_ResourceGroup_Name $(AZ_Customer_Prefix)-slfd-uat-rg-01 
+                    -AZ_Resource_Location $(Azure_Resource_Location) 
+                    -AZ_SynapseWorkspace_Name $(AZ_Customer_Prefix)-$(AZ_SynapseWorkspace_Name)
+                    -AZ_SynapseWorkspace_Linked_StorageAccount_defaultfilesystem slfdsaplaceholder
+                    -AZ_SynapseWorkspace_SQL_Local_Username $(AZ_Customer_Prefix)-$(AZ_SynapseWorkspace_SQL_Local_Username)
+                    -AZ_SynapseWorkspace_Managed_ResourceGroupName $(AZ_Customer_Prefix)-slfd-uat-mrg-01
+                    -AZ_SynapseWorkspace_EntraID_Admin_ObjectID $(Primary_EntraID_Admin_SID)
+                    -AZ_SparkPool_SynapseWorkspace_Name $(AZ_Customer_Prefix)slfduataps
+                    -AZ_SparkPool_AutoScale true
+                    -AZ_SparkPool_IsolatedCompute false
+                    -AZ_SparkPool_MinNodeCount 5
+                    -AZ_SparkPool_MaxNodeCount 10
+                    -AZ_SparkPool_NodeCount 0
+                    -AZ_SparkPool_NodeSizeFamily MemoryOptimized
+                    -AZ_SparkPool_NodeSize small
+                    -AZ_SparkPool_AutoPause true
+                    -AZ_SparkPool_AutoPauseDelay 5
+                    -AZ_SparkPool_Version 3.3
+                    -AZ_SparkPool_ConfigFile_Name 
+                    -AZ_SparkPool_ConfigFile_PropertiesContent 
+                    -AZ_SparkPool_SessionLevelPackages true
+                    -AZ_SparkPool_DynamicExecutorAllocation false
+                    -AZ_SparkPool_MinExecutorCount 0
+                    -AZ_SparkPool_MaxExecutorCount 0
+                    -AZ_SparkPool_CacheSize 50
+                    -AZ_StorageAccount_Name slfduatsa01
+                    -AZ_SynapseWorkspace_SQL_Local_Password $(AZ_SynapseWorkspace_SQL_Local_Password)
+                    -AZ_SQLHost_Name slfd-adw-serv-dev-01
+                    -AZ_SQLHost_Local_Admin_Username $(AZ_Customer_Prefix)-$(AZ_SQLHost_Local_Admin_Username)
+                    -AZ_SQLHost_Local_Admin_Password $(AZ_Customer_Prefix)-$(AZ_SQLHost_Local_Admin_Password)
+                    -AZ_SQLHost_EntraID_Admin $(Primary_EntraID_Admin_Email)
+                    -AZ_SQLHost_EntraID_Admin_SID $(Primary_EntraID_Admin_SID)
+                    -AZ_SQLHost_Version 12.0
+                    -AZ_SQLHost_TLSMin_Version 1.2
+                    -AZ_SQLHost_PublicAccess Enabled
+                    -AZ_SQLHost_TenantId $(Azure_Tenant_Id)
+                    -AZ_SQLHost_EntraIDAuth_Enforced false
+                    -AZ_SQLHost_OutboundAccess_Restricted Disabled
+                    -AZ_SQLHost_AdminType ActiveDirectory
+                    -AZ_SQLHost_PrincipalType User
+                    -AZ_SQLHost_Kind v12.0
+                    -AZ_SQLHost_FirewallRule_01 "$(AZ_Customer_Prefix) Sample WFH User"
+                    -AZ_SQLHost_FirewallRule_01_StartIP 51.141.37.240
+                    -AZ_SQLHost_FirewallRule_01_EndIP 51.141.37.240
+                    -AZ_SQLDB_Name slfd-adw-db-dev-01
+                    -AZ_SQLDB_sku_name GP_S_Gen5
+                    -AZ_SQLDB_tier GeneralPurpose
+                    -AZ_SQLDB_family Gen5
+                    -AZ_SQLDB_capacity 1
+                    -AZ_SQLDB_Kind v12.0,user,vcore,serverless
+                    -AZ_SQLDB_Collation SQL_Latin1_General_CP1_CI_AS
+                    -AZ_SQLDB_MaxSize 34359738368
+                    -AZ_SQLDB_Catalog_Collation SQL_Latin1_General_CP1_CI_AS
+                    -AZ_SQLDB_Zone_Redundant false
+                    -AZ_SQLDB_Read_Scale Disabled
+                    -AZ_SQLDB_AutoPause_Delay 60
+                    -AZ_SQLDB_Backup_Storage_Redundancy Local
+                    -AZ_SQLDB_Min_Capacity 0.5
+                    -AZ_SQLDB_Ledger_Enabled false
+                    -AZ_SQLDB_Availibility_Zone NoPreference
+                    -AZ_KeyVault_Name $(AZ_Customer_Prefix)-slfd-uat-kv-01
+                    -AZ_KeyVault_Sku Standard
+                    -AZ_KeyVault_Family A
+                    -AZ_KeyVault_TenantId $(Azure_Tenant_Id)
+                    -AZ_KeyVault_EnabledForDeployment true
+                    -AZ_KeyVault_EnabledForTemplateDeployment true
+                    -AZ_KeyVault_EnabledForDiskEncryption false
+                    -AZ_KeyVault_EnabledForRBACAuthorization false
+                    -AZ_KeyVault_Public_Network_Access Enabled
+                    -AZ_KeyVault_SoftDelete_Enabled true
+                    -AZ_KeyVault_SoftDelete_RetentionDays 60
+  
+                deploymentMode: 'Incremental'
+
+                  
+
+- stage: SLFDAzureResourceDeploymentProduction
+  displayName: 'SLFDAzureResourceDeploymentProduction'
+  condition: succeeded()
+  variables:
+    - group: SLFD - Secure Production Variables
+      #Synapse Link Resource Specific Variables
+    - name: AZ_SQLDB_Name
+      value: 'slfd-adw-db-prod-01'
+    - name: AZ_SQLHost_Local_Admin_Username
+      value: 'adwsqlprod01'
+    - name: AZ_SQLHost_Name
+      value: 'slfd-adw-serv-prod-01'
+    - name: AZ_SynapseWorkspace_Name
+      value: 'slfd-prod-sw-01'
+    - name: AZ_SynapseWorkspace_SQL_Local_Username
+      value: 'slfdprodsqladmin'
+  jobs:
+  - deployment: 'SLFDAzureResourceDeploymentprod'
+    displayName: 'SLFD Environment Production'
+    environment: Production
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - checkout: self
+            - task: AzureResourceManagerTemplateDeployment@3
+              inputs:
+                deploymentScope: 'Resource Group'
+                azureResourceManagerConnection: "$(Devops_Service_Connection_Name)"
+                subscriptionId: $(Azure_Subscription_Id)
+                action: 'Create Or Update Resource Group'
+                resourceGroupName: '$(AZ_Customer_Prefix)-slfd-prod-rg-01'
+                location: "$(Azure_Resource_Location_Formatted)"
+                templateLocation: 'Linked artifact'
+                csmFile: Analytics\Azure.Resources\Azure.Resources.SynapseLink.AzureHostedDB\AZ.SynapseLink-AzureHostedDB.bicep
+                csmParametersFile: Analytics\Azure.Resources\Azure.Resources.SynapseLink.AzureHostedDB\AZ.SynapseLink-AzureHostedDB.Parameters.json
+                overrideParameters: >
+                    -AZ_Subscription_id $(Azure_Subscription_Id)
+                    -AZ_ResourceGroup_Name slfd-prod-rg-01 
+                    -AZ_Resource_Location $(Azure_Resource_Location) 
+                    -AZ_SynapseWorkspace_Name $(AZ_Customer_Prefix)-$(AZ_SynapseWorkspace_Name)
+                    -AZ_SynapseWorkspace_Linked_StorageAccount_defaultfilesystem slfdsaplaceholder
+                    -AZ_SynapseWorkspace_SQL_Local_Username $(AZ_Customer_Prefix)-$(AZ_SynapseWorkspace_SQL_Local_Username)
+                    -AZ_SynapseWorkspace_Managed_ResourceGroupName slfd-prod-mrg-01
+                    -AZ_SynapseWorkspace_EntraID_Admin_ObjectID $(Primary_EntraID_Admin_SID)
+                    -AZ_SparkPool_SynapseWorkspace_Name $(AZ_Customer_Prefix)slfdprodaps
+                    -AZ_SparkPool_AutoScale true
+                    -AZ_SparkPool_IsolatedCompute false
+                    -AZ_SparkPool_MinNodeCount 5
+                    -AZ_SparkPool_MaxNodeCount 10
+                    -AZ_SparkPool_NodeCount 0
+                    -AZ_SparkPool_NodeSizeFamily MemoryOptimized
+                    -AZ_SparkPool_NodeSize small
+                    -AZ_SparkPool_AutoPause true
+                    -AZ_SparkPool_AutoPauseDelay 5
+                    -AZ_SparkPool_Version 3.3
+                    -AZ_SparkPool_ConfigFile_Name 
+                    -AZ_SparkPool_ConfigFile_PropertiesContent 
+                    -AZ_SparkPool_SessionLevelPackages true
+                    -AZ_SparkPool_DynamicExecutorAllocation false
+                    -AZ_SparkPool_MinExecutorCount 0
+                    -AZ_SparkPool_MaxExecutorCount 0
+                    -AZ_SparkPool_CacheSize 50
+                    -AZ_StorageAccount_Name slfdprodsa01
+                    -AZ_SynapseWorkspace_SQL_Local_Password $(AZ_SynapseWorkspace_SQL_Local_Password)
+                    -AZ_SQLHost_Name $(AZ_Customer_Prefix)-slfd-adw-serv-dev-01
+                    -AZ_SQLHost_Local_Admin_Username $(AZ_Customer_Prefix)-$(AZ_SQLHost_Local_Admin_Username)
+                    -AZ_SQLHost_Local_Admin_Password $(AZ_SQLHost_Local_Admin_Password)
+                    -AZ_SQLHost_EntraID_Admin $(Primary_EntraID_Admin_Email)
+                    -AZ_SQLHost_EntraID_Admin_SID $(Primary_EntraID_Admin_SID)
+                    -AZ_SQLHost_Version 12.0
+                    -AZ_SQLHost_TLSMin_Version 1.2
+                    -AZ_SQLHost_PublicAccess Enabled
+                    -AZ_SQLHost_TenantId $(Azure_Tenant_Id)
+                    -AZ_SQLHost_EntraIDAuth_Enforced false
+                    -AZ_SQLHost_OutboundAccess_Restricted Disabled
+                    -AZ_SQLHost_AdminType ActiveDirectory
+                    -AZ_SQLHost_PrincipalType User
+                    -AZ_SQLHost_Kind v12.0
+                    -AZ_SQLHost_FirewallRule_01 "$(AZ_Customer_Prefix) Sample WFH User"
+                    -AZ_SQLHost_FirewallRule_01_StartIP 51.141.37.240
+                    -AZ_SQLHost_FirewallRule_01_EndIP 51.141.37.240
+                    -AZ_SQLDB_Name slfd-adw-db-dev-01
+                    -AZ_SQLDB_sku_name GP_S_Gen5
+                    -AZ_SQLDB_tier GeneralPurpose
+                    -AZ_SQLDB_family Gen5
+                    -AZ_SQLDB_capacity 1
+                    -AZ_SQLDB_Kind v12.0,user,vcore,serverless
+                    -AZ_SQLDB_Collation SQL_Latin1_General_CP1_CI_AS
+                    -AZ_SQLDB_MaxSize 34359738368
+                    -AZ_SQLDB_Catalog_Collation SQL_Latin1_General_CP1_CI_AS
+                    -AZ_SQLDB_Zone_Redundant false
+                    -AZ_SQLDB_Read_Scale Disabled
+                    -AZ_SQLDB_AutoPause_Delay 60
+                    -AZ_SQLDB_Backup_Storage_Redundancy Local
+                    -AZ_SQLDB_Min_Capacity 0.5
+                    -AZ_SQLDB_Ledger_Enabled false
+                    -AZ_SQLDB_Availibility_Zone NoPreference
+                    -AZ_KeyVault_Name $(AZ_Customer_Prefix)-slfd-prod-kv-01
+                    -AZ_KeyVault_Sku Standard
+                    -AZ_KeyVault_Family A
+                    -AZ_KeyVault_TenantId $(Azure_Tenant_Id)
+                    -AZ_KeyVault_EnabledForDeployment true
+                    -AZ_KeyVault_EnabledForTemplateDeployment true
+                    -AZ_KeyVault_EnabledForDiskEncryption false
+                    -AZ_KeyVault_EnabledForRBACAuthorization false
+                    -AZ_KeyVault_Public_Network_Access Enabled
+                    -AZ_KeyVault_SoftDelete_Enabled true
+                    -AZ_KeyVault_SoftDelete_RetentionDays 60
+                deploymentMode: 'Incremental'

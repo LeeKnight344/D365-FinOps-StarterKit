@@ -1,0 +1,1540 @@
+{
+    "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "actions": {
+            "Broadcast_Type": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "Broadcast Type",
+                            "type": "string",
+                            "value": "@triggerBody()?['userProperties']['BroadcastType']"
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Parse_Bearer_Token": [
+                        "SUCCEEDED"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Find_Matching_Dataverse_Record": {
+                "inputs": {
+                    "headers": {
+                        "Authorization": "Bearer @{body('Parse_Bearer_Token')?['access_token']}"
+                    },
+                    "method": "GET",
+                    "uri": "@{parameters('AZ_APIS_Dataverse_URL')}api/data/v9.1/mserp_custcustomerv3entities?$filter=mserp_customeraccount eq '@{json(xml(triggerBody()?['contentData']))['CustomerBroadcast']['CustomerID']}'"
+                },
+                "runAfter": {
+                    "Broadcast_Type": [
+                        "SUCCEEDED"
+                    ]
+                },
+                "runtimeConfiguration": {
+                    "contentTransfer": {
+                        "transferMode": "Chunked"
+                    }
+                },
+                "type": "Http"
+            },
+            "Get_Dataverse_Bearer_Token": {
+                "inputs": {
+                    "body": "grant_type=client_credentials\n&client_id=@{parameters('AZ_APIS_Dataverse_Client_ID')}\n&client_secret=@{parameters('AZ_APIS_Dataverse_Client_Secret')}\n&resource=@{parameters('AZ_APIS_Dataverse_URL')}",
+                    "headers": {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    "method": "POST",
+                    "uri": "https://login.microsoftonline.com/@{parameters('AZ_Tenant_ID')}/oauth2/token"
+                },
+                "runAfter": {},
+                "runtimeConfiguration": {
+                    "contentTransfer": {
+                        "transferMode": "Chunked"
+                    }
+                },
+                "type": "Http"
+            },
+            "Parse_Bearer_Token": {
+                "inputs": {
+                    "content": "@body('Get_Dataverse_Bearer_Token')",
+                    "schema": {
+                        "properties": {
+                            "access_token": {
+                                "type": "string"
+                            },
+                            "expires_in": {
+                                "type": "string"
+                            },
+                            "expires_on": {
+                                "type": "string"
+                            },
+                            "ext_expires_in": {
+                                "type": "string"
+                            },
+                            "not_before": {
+                                "type": "string"
+                            },
+                            "resource": {
+                                "type": "string"
+                            },
+                            "token_type": {
+                                "type": "string"
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "runAfter": {
+                    "Get_Dataverse_Bearer_Token": [
+                        "SUCCEEDED"
+                    ]
+                },
+                "type": "ParseJson"
+            },
+            "Parse_JSON": {
+                "inputs": {
+                    "content": "@body('Find_Matching_Dataverse_Record')",
+                    "schema": {
+                        "properties": {
+                            "@@odata.context": {
+                                "type": "string"
+                            },
+                            "value": {
+                                "items": {
+                                    "properties": {
+                                        "_mserp_dataareaid_id_value": {
+                                            "type": "string"
+                                        },
+                                        "mserp_a365sellable": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_accountstatement": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_addressbooks": {
+                                            "type": "string"
+                                        },
+                                        "mserp_addressbraziliancnpjorcpf": {
+                                            "type": "string"
+                                        },
+                                        "mserp_addressbrazilianie": {
+                                            "type": "string"
+                                        },
+                                        "mserp_addressbuildingcomplement": {
+                                            "type": "string"
+                                        },
+                                        "mserp_addresscity": {
+                                            "type": "string"
+                                        },
+                                        "mserp_addresscountryregionid": {
+                                            "type": "string"
+                                        },
+                                        "mserp_addresscountryregionisocode": {
+                                            "type": "string"
+                                        },
+                                        "mserp_addresscounty": {
+                                            "type": "string"
+                                        },
+                                        "mserp_addressdescription": {
+                                            "type": "string"
+                                        },
+                                        "mserp_addressdistrictname": {
+                                            "type": "string"
+                                        },
+                                        "mserp_addresslatitude": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_addresslocationid": {
+                                            "type": "string"
+                                        },
+                                        "mserp_addresslocationroles": {
+                                            "type": "string"
+                                        },
+                                        "mserp_addresslongitude": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_addresspostbox": {
+                                            "type": "string"
+                                        },
+                                        "mserp_addressrecordid": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_addressrecordid_bigint": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_addressstate": {
+                                            "type": "string"
+                                        },
+                                        "mserp_addressstreet": {
+                                            "type": "string"
+                                        },
+                                        "mserp_addressstreetnumber": {
+                                            "type": "string"
+                                        },
+                                        "mserp_addresstimezone": {},
+                                        "mserp_addressvalidfrom": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_addressvalidto": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        },
+                                        "mserp_addresszipcode": {
+                                            "type": "string"
+                                        },
+                                        "mserp_allowonaccount": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_amcommissioninventlocationid": {
+                                            "type": "string"
+                                        },
+                                        "mserp_amivolvoretailcustodiansegmentid": {
+                                            "type": "string"
+                                        },
+                                        "mserp_amivolvoretaildevicecustodiangroupid": {
+                                            "type": "string"
+                                        },
+                                        "mserp_amivolvoretailtype": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_authorityoffice": {
+                                            "type": "string"
+                                        },
+                                        "mserp_birthcountycode": {
+                                            "type": "string"
+                                        },
+                                        "mserp_birthplace": {
+                                            "type": "string"
+                                        },
+                                        "mserp_brazilianccm": {
+                                            "type": "string"
+                                        },
+                                        "mserp_braziliancnae": {
+                                            "type": "string"
+                                        },
+                                        "mserp_braziliancnpjorcpf": {
+                                            "type": "string"
+                                        },
+                                        "mserp_brazilianie": {
+                                            "type": "string"
+                                        },
+                                        "mserp_brazilianinsscei": {
+                                            "type": "string"
+                                        },
+                                        "mserp_braziliannit": {
+                                            "type": "string"
+                                        },
+                                        "mserp_calculatewithholdingtax": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_centralbankpurposecode": {
+                                            "type": "string"
+                                        },
+                                        "mserp_centralbankpurposenotes": {
+                                            "type": "string"
+                                        },
+                                        "mserp_cfditemporaryexport_mx": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_chargesgroupid": {
+                                            "type": "string"
+                                        },
+                                        "mserp_collectionlettercode": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_collectionscontactpersonid": {
+                                            "type": "string"
+                                        },
+                                        "mserp_commissioncustomergroupid": {
+                                            "type": "string"
+                                        },
+                                        "mserp_commissionsalesgroupid": {
+                                            "type": "string"
+                                        },
+                                        "mserp_companychain": {
+                                            "type": "string"
+                                        },
+                                        "mserp_companytype": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_consolidationday": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_contactpersonid": {
+                                            "type": "string"
+                                        },
+                                        "mserp_creditcardaddressverification": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_creditcardaddressverificationisauthorizationvoidedonfailure": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_creditcardaddressverificationlevel": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_creditcardcvc": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_creditlimit": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_creditlimitismandatory": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_creditrating": {
+                                            "type": "string"
+                                        },
+                                        "mserp_credmanaccountstatusid": {
+                                            "type": "string"
+                                        },
+                                        "mserp_credmanbusinessstarted": {},
+                                        "mserp_credmancollectiongroupid": {
+                                            "type": "string"
+                                        },
+                                        "mserp_credmancreditlimitdate": {},
+                                        "mserp_credmancreditlimitexpirydate": {},
+                                        "mserp_credmancustcreditmaxalt": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_credmancustomersince": {
+                                            "type": "string"
+                                        },
+                                        "mserp_credmancustunlimitedcredit": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_credmaneligiblecreditlimitcurrency": {
+                                            "type": "string"
+                                        },
+                                        "mserp_credmaneligiblecreditlimitdate": {},
+                                        "mserp_credmaneligiblecreditmax": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_credmanexclude": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_credmangroupid": {
+                                            "type": "string"
+                                        },
+                                        "mserp_credmanlastreviewdate": {},
+                                        "mserp_credmannextschedreviewdate": {},
+                                        "mserp_credmannotes": {
+                                            "type": "string"
+                                        },
+                                        "mserp_credmanstatusreasonid": {
+                                            "type": "string"
+                                        },
+                                        "mserp_credmantitleheld": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_credmanwithagency": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_curpnumber": {
+                                            "type": "string"
+                                        },
+                                        "mserp_custclassificationid": {
+                                            "type": "string"
+                                        },
+                                        "mserp_custcustomerv3entityid": {
+                                            "type": "string"
+                                        },
+                                        "mserp_customeraccount": {
+                                            "type": "string"
+                                        },
+                                        "mserp_customergroupid": {
+                                            "type": "string"
+                                        },
+                                        "mserp_customerpaymentfinancialinterestcode": {
+                                            "type": "string"
+                                        },
+                                        "mserp_customerpaymentfinecode": {
+                                            "type": "string"
+                                        },
+                                        "mserp_customerrebategroupid": {
+                                            "type": "string"
+                                        },
+                                        "mserp_customertmagroupid": {
+                                            "type": "string"
+                                        },
+                                        "mserp_customertype": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_customerwithholdingcontributiontype": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_dataareaid": {
+                                            "type": "string"
+                                        },
+                                        "mserp_defaultdimensiondisplayvalue": {
+                                            "type": "string"
+                                        },
+                                        "mserp_defaultecommerceoperator": {
+                                            "type": "string"
+                                        },
+                                        "mserp_defaultinventorystatusid": {
+                                            "type": "string"
+                                        },
+                                        "mserp_deliveryaddressbuildingcomplement": {
+                                            "type": "string"
+                                        },
+                                        "mserp_deliveryaddresscity": {
+                                            "type": "string"
+                                        },
+                                        "mserp_deliveryaddresscountryregionid": {
+                                            "type": "string"
+                                        },
+                                        "mserp_deliveryaddresscountryregionisocode": {
+                                            "type": "string"
+                                        },
+                                        "mserp_deliveryaddresscounty": {
+                                            "type": "string"
+                                        },
+                                        "mserp_deliveryaddressdescription": {
+                                            "type": "string"
+                                        },
+                                        "mserp_deliveryaddressdistrictname": {
+                                            "type": "string"
+                                        },
+                                        "mserp_deliveryaddresslatitude": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_deliveryaddresslocationid": {
+                                            "type": "string"
+                                        },
+                                        "mserp_deliveryaddresslongitude": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_deliveryaddressstate": {
+                                            "type": "string"
+                                        },
+                                        "mserp_deliveryaddressstreet": {
+                                            "type": "string"
+                                        },
+                                        "mserp_deliveryaddressstreetnumber": {
+                                            "type": "string"
+                                        },
+                                        "mserp_deliveryaddresstimezone": {},
+                                        "mserp_deliveryaddressvalidfrom": {},
+                                        "mserp_deliveryaddressvalidto": {},
+                                        "mserp_deliveryaddresszipcode": {
+                                            "type": "string"
+                                        },
+                                        "mserp_deliveryfreightzone": {
+                                            "type": "string"
+                                        },
+                                        "mserp_deliverymode": {
+                                            "type": "string"
+                                        },
+                                        "mserp_deliveryreason": {
+                                            "type": "string"
+                                        },
+                                        "mserp_deliveryterms": {
+                                            "type": "string"
+                                        },
+                                        "mserp_destinationcode": {
+                                            "type": "string"
+                                        },
+                                        "mserp_discountpricegroupid": {
+                                            "type": "string"
+                                        },
+                                        "mserp_einvoiceattachment": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_einvoiceregister": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_electronicinvoiceean": {
+                                            "type": "string"
+                                        },
+                                        "mserp_electroniclocationid": {
+                                            "type": "string"
+                                        },
+                                        "mserp_employeeresponsiblenumber": {
+                                            "type": "string"
+                                        },
+                                        "mserp_exportsale": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_federalagencylocationcode": {
+                                            "type": "string"
+                                        },
+                                        "mserp_federalcomments": {
+                                            "type": "string"
+                                        },
+                                        "mserp_federalindicator": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_fiscalcode": {
+                                            "type": "string"
+                                        },
+                                        "mserp_foreigncustomer": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_foreignerid": {
+                                            "type": "string"
+                                        },
+                                        "mserp_foreignresident": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_frenchsiret": {
+                                            "type": "string"
+                                        },
+                                        "mserp_fulfillmentpolicyname": {
+                                            "type": "string"
+                                        },
+                                        "mserp_fullprimaryaddress": {
+                                            "type": "string"
+                                        },
+                                        "mserp_girotype": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_girotypeaccountstatement": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_girotypecollectionletter": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_girotypefreetextinvoice": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_girotypeinterestnote": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_girotypeprojinvoice": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_hassuframadiscountpisandcofins": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_identificationnumber": {
+                                            "type": "string"
+                                        },
+                                        "mserp_intercompanyautocreateorders": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_invoiceaccount": {
+                                            "type": "string"
+                                        },
+                                        "mserp_invoiceaddress": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_invoiceaddressbuildingcomplement": {
+                                            "type": "string"
+                                        },
+                                        "mserp_invoiceaddresscity": {
+                                            "type": "string"
+                                        },
+                                        "mserp_invoiceaddresscountryregionid": {
+                                            "type": "string"
+                                        },
+                                        "mserp_invoiceaddresscountryregionisocode": {
+                                            "type": "string"
+                                        },
+                                        "mserp_invoiceaddresscounty": {
+                                            "type": "string"
+                                        },
+                                        "mserp_invoiceaddressdescription": {
+                                            "type": "string"
+                                        },
+                                        "mserp_invoiceaddressdistrictname": {
+                                            "type": "string"
+                                        },
+                                        "mserp_invoiceaddresslatitude": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_invoiceaddresslocationid": {
+                                            "type": "string"
+                                        },
+                                        "mserp_invoiceaddresslongitude": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_invoiceaddressstate": {
+                                            "type": "string"
+                                        },
+                                        "mserp_invoiceaddressstreet": {
+                                            "type": "string"
+                                        },
+                                        "mserp_invoiceaddressstreetnumber": {
+                                            "type": "string"
+                                        },
+                                        "mserp_invoiceaddresstimezone": {},
+                                        "mserp_invoiceaddressvalidfrom": {},
+                                        "mserp_invoiceaddressvalidto": {},
+                                        "mserp_invoiceaddresszipcode": {
+                                            "type": "string"
+                                        },
+                                        "mserp_invoicepostingtype": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_irs1099cindicator": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_isallowcreateindirectorderlines": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_iselectronicinvoice": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_isexcludedfromcollectionfeecalculation": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_isexcludedfrominterestchargecalculation": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_isexpressbillofladingaccepted": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_isexternallymaintained": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_isfinaluser": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_isfreightaccrued": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_isfuelsurchargeapplied": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_isicmscontributor": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_isincomingfiscaldocumentgenerated": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_isinsuframaregion": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_isonetimecustomer": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_isordernumberreferenceused": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_ispublicsector_it": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_ispurchrequestused": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_issalestaxincludedinprices": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_isservicedeliveryaddressbased": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_issimplifieddeliveryaddress": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_issimplifiedinvoiceaddress": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_issimplifiedprimaryaddress": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_istransactionpostedasshipment": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_iswithholdingtaxcalculated": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_itemcustomergroupid": {
+                                            "type": "string"
+                                        },
+                                        "mserp_knownas": {
+                                            "type": "string"
+                                        },
+                                        "mserp_languageid": {
+                                            "type": "string"
+                                        },
+                                        "mserp_linediscountcode": {
+                                            "type": "string"
+                                        },
+                                        "mserp_lineofbusinessid": {
+                                            "type": "string"
+                                        },
+                                        "mserp_merchantid": {
+                                            "type": "string"
+                                        },
+                                        "mserp_multilinediscountcode": {
+                                            "type": "string"
+                                        },
+                                        "mserp_nafcode": {
+                                            "type": "string"
+                                        },
+                                        "mserp_namealias": {
+                                            "type": "string"
+                                        },
+                                        "mserp_nationalregistrynumber": {
+                                            "type": "string"
+                                        },
+                                        "mserp_natureofassessee": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_numbersequencegroup": {
+                                            "type": "string"
+                                        },
+                                        "mserp_onholdstatus": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_orderentrydeadline": {
+                                            "type": "string"
+                                        },
+                                        "mserp_organizationabccode": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_organizationname": {
+                                            "type": "string"
+                                        },
+                                        "mserp_organizationnumber": {
+                                            "type": "string"
+                                        },
+                                        "mserp_organizationnumberofemployees": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_organizationphoneticname": {
+                                            "type": "string"
+                                        },
+                                        "mserp_overridesalestax": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_packingdutylicense": {
+                                            "type": "string"
+                                        },
+                                        "mserp_packingmaterialfeelicensenumber": {
+                                            "type": "string"
+                                        },
+                                        "mserp_pannumber": {
+                                            "type": "string"
+                                        },
+                                        "mserp_panreferencenumber": {
+                                            "type": "string"
+                                        },
+                                        "mserp_panstatus": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_partycountry": {
+                                            "type": "string"
+                                        },
+                                        "mserp_partynumber": {
+                                            "type": "string"
+                                        },
+                                        "mserp_partystate": {
+                                            "type": "string"
+                                        },
+                                        "mserp_partytype": {
+                                            "type": "string"
+                                        },
+                                        "mserp_paymentbankaccount": {
+                                            "type": "string"
+                                        },
+                                        "mserp_paymentcashdiscount": {
+                                            "type": "string"
+                                        },
+                                        "mserp_paymentday": {
+                                            "type": "string"
+                                        },
+                                        "mserp_paymentfactoringaccount": {
+                                            "type": "string"
+                                        },
+                                        "mserp_paymentidtype": {
+                                            "type": "string"
+                                        },
+                                        "mserp_paymentmethod": {
+                                            "type": "string"
+                                        },
+                                        "mserp_paymentschedule": {
+                                            "type": "string"
+                                        },
+                                        "mserp_paymentspecification": {
+                                            "type": "string"
+                                        },
+                                        "mserp_paymentterms": {
+                                            "type": "string"
+                                        },
+                                        "mserp_paymenttermsbasedays": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_paymentusecashdiscount": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_personanniversaryday": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_personanniversarymonth": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_personanniversaryyear": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_personchildrennames": {
+                                            "type": "string"
+                                        },
+                                        "mserp_personfirstname": {
+                                            "type": "string"
+                                        },
+                                        "mserp_persongender": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_personhobbies": {
+                                            "type": "string"
+                                        },
+                                        "mserp_personinitials": {
+                                            "type": "string"
+                                        },
+                                        "mserp_personlastname": {
+                                            "type": "string"
+                                        },
+                                        "mserp_personlastnameprefix": {
+                                            "type": "string"
+                                        },
+                                        "mserp_personmaritalstatus": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_personmiddlename": {
+                                            "type": "string"
+                                        },
+                                        "mserp_personphoneticfirstname": {
+                                            "type": "string"
+                                        },
+                                        "mserp_personphoneticlastname": {
+                                            "type": "string"
+                                        },
+                                        "mserp_personphoneticmiddlename": {
+                                            "type": "string"
+                                        },
+                                        "mserp_personprofessionalsuffix": {
+                                            "type": "string"
+                                        },
+                                        "mserp_personprofessionaltitle": {
+                                            "type": "string"
+                                        },
+                                        "mserp_preferentialcustomer": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_primarycontactemail": {
+                                            "type": "string"
+                                        },
+                                        "mserp_primarycontactemaildescription": {
+                                            "type": "string"
+                                        },
+                                        "mserp_primarycontactemailisim": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_primarycontactemailpurpose": {
+                                            "type": "string"
+                                        },
+                                        "mserp_primarycontactemailrecordid": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_primarycontactemailrecordid_bigint": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_primarycontactfacebook": {
+                                            "type": "string"
+                                        },
+                                        "mserp_primarycontactfacebookdescription": {
+                                            "type": "string"
+                                        },
+                                        "mserp_primarycontactfacebookpurpose": {
+                                            "type": "string"
+                                        },
+                                        "mserp_primarycontactfax": {
+                                            "type": "string"
+                                        },
+                                        "mserp_primarycontactfaxdescription": {
+                                            "type": "string"
+                                        },
+                                        "mserp_primarycontactfaxextension": {
+                                            "type": "string"
+                                        },
+                                        "mserp_primarycontactfaxpurpose": {
+                                            "type": "string"
+                                        },
+                                        "mserp_primarycontactfaxrecordid": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_primarycontactfaxrecordid_bigint": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_primarycontactlinkedin": {
+                                            "type": "string"
+                                        },
+                                        "mserp_primarycontactlinkedindescription": {
+                                            "type": "string"
+                                        },
+                                        "mserp_primarycontactlinkedinpurpose": {
+                                            "type": "string"
+                                        },
+                                        "mserp_primarycontactphone": {
+                                            "type": "string"
+                                        },
+                                        "mserp_primarycontactphonedescription": {
+                                            "type": "string"
+                                        },
+                                        "mserp_primarycontactphoneextension": {
+                                            "type": "string"
+                                        },
+                                        "mserp_primarycontactphoneismobile": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_primarycontactphonepurpose": {
+                                            "type": "string"
+                                        },
+                                        "mserp_primarycontactphonerecordid": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_primarycontactphonerecordid_bigint": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_primarycontacttelex": {
+                                            "type": "string"
+                                        },
+                                        "mserp_primarycontacttelexdescription": {
+                                            "type": "string"
+                                        },
+                                        "mserp_primarycontacttelexpurpose": {
+                                            "type": "string"
+                                        },
+                                        "mserp_primarycontacttwitter": {
+                                            "type": "string"
+                                        },
+                                        "mserp_primarycontacttwitterdescription": {
+                                            "type": "string"
+                                        },
+                                        "mserp_primarycontacttwitterpurpose": {
+                                            "type": "string"
+                                        },
+                                        "mserp_primarycontacturl": {
+                                            "type": "string"
+                                        },
+                                        "mserp_primarycontacturldescription": {
+                                            "type": "string"
+                                        },
+                                        "mserp_primarycontacturlpurpose": {
+                                            "type": "string"
+                                        },
+                                        "mserp_primarycontacturlrecordid": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_primarycontacturlrecordid_bigint": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_priority": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_receiptcalendar": {
+                                            "type": "string"
+                                        },
+                                        "mserp_receiptemail": {
+                                            "type": "string"
+                                        },
+                                        "mserp_receiptoption": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_reliefgroupid": {
+                                            "type": "string"
+                                        },
+                                        "mserp_residenceforeigncountryregionid": {
+                                            "type": "string"
+                                        },
+                                        "mserp_rfcnumber": {
+                                            "type": "string"
+                                        },
+                                        "mserp_salesaccountnumber": {
+                                            "type": "string"
+                                        },
+                                        "mserp_salescurrencycode": {
+                                            "type": "string"
+                                        },
+                                        "mserp_salesdistrict": {
+                                            "type": "string"
+                                        },
+                                        "mserp_salesmemo": {
+                                            "type": "string"
+                                        },
+                                        "mserp_salesorderpoolid": {
+                                            "type": "string"
+                                        },
+                                        "mserp_salesreturntaxgroup": {
+                                            "type": "string"
+                                        },
+                                        "mserp_salessegmentid": {
+                                            "type": "string"
+                                        },
+                                        "mserp_salessubsegmentid": {
+                                            "type": "string"
+                                        },
+                                        "mserp_salestaxgroup": {
+                                            "type": "string"
+                                        },
+                                        "mserp_satregistrationname_mx": {
+                                            "type": "string"
+                                        },
+                                        "mserp_siteid": {
+                                            "type": "string"
+                                        },
+                                        "mserp_stateinscription": {
+                                            "type": "string"
+                                        },
+                                        "mserp_statisticsgroupid": {
+                                            "type": "string"
+                                        },
+                                        "mserp_suframanumber": {
+                                            "type": "string"
+                                        },
+                                        "mserp_supplementaryitemgroupid": {
+                                            "type": "string"
+                                        },
+                                        "mserp_taxexemptnumber": {
+                                            "type": "string"
+                                        },
+                                        "mserp_taxregimecode_mx": {
+                                            "type": "string"
+                                        },
+                                        "mserp_taxregistrationid": {
+                                            "type": "string"
+                                        },
+                                        "mserp_tcsgroup": {
+                                            "type": "string"
+                                        },
+                                        "mserp_tdsgroup": {
+                                            "type": "string"
+                                        },
+                                        "mserp_totaldiscountcode": {
+                                            "type": "string"
+                                        },
+                                        "mserp_transactionpresencetype": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_vendoraccount": {
+                                            "type": "string"
+                                        },
+                                        "mserp_warehouseid": {
+                                            "type": "string"
+                                        },
+                                        "mserp_warehouseisasngenerated": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_warehouseisentireshipmentfilled": {
+                                            "type": "integer"
+                                        },
+                                        "mserp_withholdingtaxgroupcode": {
+                                            "type": "string"
+                                        },
+                                        "mserp_writeoffreason": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "mserp_customeraccount",
+                                        "mserp_partytype",
+                                        "mserp_organizationname",
+                                        "mserp_namealias",
+                                        "mserp_knownas",
+                                        "mserp_customergroupid",
+                                        "mserp_organizationnumber",
+                                        "mserp_organizationnumberofemployees",
+                                        "mserp_organizationabccode",
+                                        "mserp_organizationphoneticname",
+                                        "mserp_personinitials",
+                                        "mserp_personfirstname",
+                                        "mserp_personmiddlename",
+                                        "mserp_personlastnameprefix",
+                                        "mserp_personlastname",
+                                        "mserp_personprofessionaltitle",
+                                        "mserp_personprofessionalsuffix",
+                                        "mserp_personphoneticfirstname",
+                                        "mserp_personphoneticlastname",
+                                        "mserp_personphoneticmiddlename",
+                                        "mserp_persongender",
+                                        "mserp_personmaritalstatus",
+                                        "mserp_personanniversaryday",
+                                        "mserp_personanniversarymonth",
+                                        "mserp_personanniversaryyear",
+                                        "mserp_personchildrennames",
+                                        "mserp_personhobbies",
+                                        "mserp_partynumber",
+                                        "mserp_addressbooks",
+                                        "mserp_languageid",
+                                        "mserp_fullprimaryaddress",
+                                        "mserp_addressdescription",
+                                        "mserp_addresszipcode",
+                                        "mserp_addresscity",
+                                        "mserp_addresscountryregionid",
+                                        "mserp_addresscountryregionisocode",
+                                        "mserp_addresscounty",
+                                        "mserp_addressdistrictname",
+                                        "mserp_addresslatitude",
+                                        "mserp_addresslocationid",
+                                        "mserp_addresslocationroles",
+                                        "mserp_addresslongitude",
+                                        "mserp_addressstate",
+                                        "mserp_addressstreet",
+                                        "mserp_addressstreetnumber",
+                                        "mserp_addressbuildingcomplement",
+                                        "mserp_addressvalidfrom",
+                                        "mserp_addressvalidto",
+                                        "mserp_addressbraziliancnpjorcpf",
+                                        "mserp_addressbrazilianie",
+                                        "mserp_primarycontactemail",
+                                        "mserp_primarycontactemaildescription",
+                                        "mserp_primarycontactemailisim",
+                                        "mserp_primarycontactemailpurpose",
+                                        "mserp_primarycontactfax",
+                                        "mserp_primarycontactfaxdescription",
+                                        "mserp_primarycontactfaxextension",
+                                        "mserp_primarycontactfaxpurpose",
+                                        "mserp_primarycontactphone",
+                                        "mserp_primarycontactphonedescription",
+                                        "mserp_primarycontactphoneextension",
+                                        "mserp_primarycontactphoneismobile",
+                                        "mserp_primarycontactphonepurpose",
+                                        "mserp_primarycontacttelex",
+                                        "mserp_primarycontacttelexdescription",
+                                        "mserp_primarycontacttelexpurpose",
+                                        "mserp_primarycontacturl",
+                                        "mserp_primarycontacturldescription",
+                                        "mserp_primarycontacturlpurpose",
+                                        "mserp_primarycontactfacebook",
+                                        "mserp_primarycontactfacebookdescription",
+                                        "mserp_primarycontactfacebookpurpose",
+                                        "mserp_primarycontactlinkedin",
+                                        "mserp_primarycontactlinkedindescription",
+                                        "mserp_primarycontactlinkedinpurpose",
+                                        "mserp_primarycontacttwitterdescription",
+                                        "mserp_primarycontacttwitter",
+                                        "mserp_primarycontacttwitterpurpose",
+                                        "mserp_isonetimecustomer",
+                                        "mserp_statisticsgroupid",
+                                        "mserp_accountstatement",
+                                        "mserp_identificationnumber",
+                                        "mserp_partycountry",
+                                        "mserp_partystate",
+                                        "mserp_vendoraccount",
+                                        "mserp_federalindicator",
+                                        "mserp_federalagencylocationcode",
+                                        "mserp_federalcomments",
+                                        "mserp_irs1099cindicator",
+                                        "mserp_contactpersonid",
+                                        "mserp_lineofbusinessid",
+                                        "mserp_employeeresponsiblenumber",
+                                        "mserp_salessegmentid",
+                                        "mserp_salessubsegmentid",
+                                        "mserp_salesdistrict",
+                                        "mserp_companychain",
+                                        "mserp_salescurrencycode",
+                                        "mserp_salesmemo",
+                                        "mserp_onholdstatus",
+                                        "mserp_creditlimitismandatory",
+                                        "mserp_creditrating",
+                                        "mserp_creditlimit",
+                                        "mserp_collectionscontactpersonid",
+                                        "mserp_isexcludedfrominterestchargecalculation",
+                                        "mserp_isexcludedfromcollectionfeecalculation",
+                                        "mserp_chargesgroupid",
+                                        "mserp_siteid",
+                                        "mserp_warehouseid",
+                                        "mserp_itemcustomergroupid",
+                                        "mserp_commissioncustomergroupid",
+                                        "mserp_commissionsalesgroupid",
+                                        "mserp_salesorderpoolid",
+                                        "mserp_salesaccountnumber",
+                                        "mserp_orderentrydeadline",
+                                        "mserp_multilinediscountcode",
+                                        "mserp_totaldiscountcode",
+                                        "mserp_discountpricegroupid",
+                                        "mserp_linediscountcode",
+                                        "mserp_customerrebategroupid",
+                                        "mserp_customertmagroupid",
+                                        "mserp_supplementaryitemgroupid",
+                                        "mserp_paymentterms",
+                                        "mserp_paymentmethod",
+                                        "mserp_paymentspecification",
+                                        "mserp_paymentschedule",
+                                        "mserp_paymentday",
+                                        "mserp_paymentcashdiscount",
+                                        "mserp_paymenttermsbasedays",
+                                        "mserp_paymentbankaccount",
+                                        "mserp_paymentfactoringaccount",
+                                        "mserp_paymentidtype",
+                                        "mserp_paymentusecashdiscount",
+                                        "mserp_centralbankpurposecode",
+                                        "mserp_centralbankpurposenotes",
+                                        "mserp_creditcardaddressverification",
+                                        "mserp_creditcardaddressverificationisauthorizationvoidedonfailure",
+                                        "mserp_creditcardaddressverificationlevel",
+                                        "mserp_creditcardcvc",
+                                        "mserp_warehouseisasngenerated",
+                                        "mserp_warehouseisentireshipmentfilled",
+                                        "mserp_defaultinventorystatusid",
+                                        "mserp_invoiceaccount",
+                                        "mserp_invoiceaddress",
+                                        "mserp_numbersequencegroup",
+                                        "mserp_girotype",
+                                        "mserp_girotypefreetextinvoice",
+                                        "mserp_girotypeinterestnote",
+                                        "mserp_girotypecollectionletter",
+                                        "mserp_girotypeprojinvoice",
+                                        "mserp_girotypeaccountstatement",
+                                        "mserp_deliveryfreightzone",
+                                        "mserp_deliveryterms",
+                                        "mserp_deliverymode",
+                                        "mserp_deliveryreason",
+                                        "mserp_destinationcode",
+                                        "mserp_receiptcalendar",
+                                        "mserp_isfuelsurchargeapplied",
+                                        "mserp_salestaxgroup",
+                                        "mserp_taxexemptnumber",
+                                        "mserp_issalestaxincludedinprices",
+                                        "mserp_packingdutylicense",
+                                        "mserp_fiscalcode",
+                                        "mserp_packingmaterialfeelicensenumber",
+                                        "mserp_iselectronicinvoice",
+                                        "mserp_electronicinvoiceean",
+                                        "mserp_isfreightaccrued",
+                                        "mserp_isexpressbillofladingaccepted",
+                                        "mserp_istransactionpostedasshipment",
+                                        "mserp_isordernumberreferenceused",
+                                        "mserp_salesreturntaxgroup",
+                                        "mserp_receiptemail",
+                                        "mserp_receiptoption",
+                                        "mserp_iswithholdingtaxcalculated",
+                                        "mserp_withholdingtaxgroupcode",
+                                        "mserp_frenchsiret",
+                                        "mserp_nafcode",
+                                        "mserp_companytype",
+                                        "mserp_curpnumber",
+                                        "mserp_rfcnumber",
+                                        "mserp_stateinscription",
+                                        "mserp_taxregistrationid",
+                                        "mserp_consolidationday",
+                                        "mserp_nationalregistrynumber",
+                                        "mserp_reliefgroupid",
+                                        "mserp_defaultdimensiondisplayvalue",
+                                        "mserp_calculatewithholdingtax",
+                                        "mserp_foreigncustomer",
+                                        "mserp_tcsgroup",
+                                        "mserp_tdsgroup",
+                                        "mserp_preferentialcustomer",
+                                        "mserp_natureofassessee",
+                                        "mserp_pannumber",
+                                        "mserp_panreferencenumber",
+                                        "mserp_panstatus",
+                                        "mserp_electroniclocationid",
+                                        "mserp_customerpaymentfinecode",
+                                        "mserp_customerpaymentfinancialinterestcode",
+                                        "mserp_brazilianccm",
+                                        "mserp_braziliancnae",
+                                        "mserp_braziliancnpjorcpf",
+                                        "mserp_isfinaluser",
+                                        "mserp_customerwithholdingcontributiontype",
+                                        "mserp_isincomingfiscaldocumentgenerated",
+                                        "mserp_isicmscontributor",
+                                        "mserp_brazilianie",
+                                        "mserp_brazilianinsscei",
+                                        "mserp_braziliannit",
+                                        "mserp_isservicedeliveryaddressbased",
+                                        "mserp_isinsuframaregion",
+                                        "mserp_suframanumber",
+                                        "mserp_hassuframadiscountpisandcofins",
+                                        "mserp_foreignerid",
+                                        "mserp_transactionpresencetype",
+                                        "mserp_writeoffreason",
+                                        "mserp_exportsale",
+                                        "mserp_birthcountycode",
+                                        "mserp_birthplace",
+                                        "mserp_residenceforeigncountryregionid",
+                                        "mserp_ispurchrequestused",
+                                        "mserp_deliveryaddressdescription",
+                                        "mserp_deliveryaddresszipcode",
+                                        "mserp_deliveryaddresscity",
+                                        "mserp_deliveryaddresscountryregionid",
+                                        "mserp_deliveryaddresscountryregionisocode",
+                                        "mserp_deliveryaddresscounty",
+                                        "mserp_deliveryaddressdistrictname",
+                                        "mserp_deliveryaddresslatitude",
+                                        "mserp_deliveryaddresslongitude",
+                                        "mserp_deliveryaddresslocationid",
+                                        "mserp_deliveryaddressstate",
+                                        "mserp_deliveryaddressstreet",
+                                        "mserp_deliveryaddressstreetnumber",
+                                        "mserp_deliveryaddressbuildingcomplement",
+                                        "mserp_invoiceaddressdescription",
+                                        "mserp_invoiceaddresszipcode",
+                                        "mserp_invoiceaddresscity",
+                                        "mserp_invoiceaddresscountryregionid",
+                                        "mserp_invoiceaddresscountryregionisocode",
+                                        "mserp_invoiceaddresscounty",
+                                        "mserp_invoiceaddressdistrictname",
+                                        "mserp_invoiceaddresslatitude",
+                                        "mserp_invoiceaddresslongitude",
+                                        "mserp_invoiceaddresslocationid",
+                                        "mserp_invoiceaddressstate",
+                                        "mserp_invoiceaddressstreet",
+                                        "mserp_invoiceaddressstreetnumber",
+                                        "mserp_invoiceaddressbuildingcomplement",
+                                        "mserp_isexternallymaintained",
+                                        "mserp_merchantid",
+                                        "mserp_defaultecommerceoperator",
+                                        "mserp_customertype",
+                                        "mserp_fulfillmentpolicyname",
+                                        "mserp_addresspostbox",
+                                        "mserp_custclassificationid",
+                                        "mserp_isallowcreateindirectorderlines",
+                                        "mserp_primarycontactemailrecordid",
+                                        "mserp_primarycontactemailrecordid_bigint",
+                                        "mserp_primarycontactfaxrecordid",
+                                        "mserp_primarycontactfaxrecordid_bigint",
+                                        "mserp_primarycontactphonerecordid",
+                                        "mserp_primarycontactphonerecordid_bigint",
+                                        "mserp_primarycontacturlrecordid",
+                                        "mserp_primarycontacturlrecordid_bigint",
+                                        "mserp_addressrecordid",
+                                        "mserp_addressrecordid_bigint",
+                                        "mserp_collectionlettercode",
+                                        "mserp_einvoiceregister",
+                                        "mserp_authorityoffice",
+                                        "mserp_einvoiceattachment",
+                                        "mserp_priority",
+                                        "mserp_invoicepostingtype",
+                                        "mserp_foreignresident",
+                                        "mserp_intercompanyautocreateorders",
+                                        "mserp_overridesalestax",
+                                        "mserp_allowonaccount",
+                                        "mserp_ispublicsector_it",
+                                        "mserp_taxregimecode_mx",
+                                        "mserp_satregistrationname_mx",
+                                        "mserp_cfditemporaryexport_mx",
+                                        "mserp_issimplifiedprimaryaddress",
+                                        "mserp_issimplifieddeliveryaddress",
+                                        "mserp_issimplifiedinvoiceaddress",
+                                        "mserp_credmanaccountstatusid",
+                                        "mserp_credmancollectiongroupid",
+                                        "mserp_credmancustcreditmaxalt",
+                                        "mserp_credmancustomersince",
+                                        "mserp_credmaneligiblecreditlimitcurrency",
+                                        "mserp_credmaneligiblecreditmax",
+                                        "mserp_credmanexclude",
+                                        "mserp_credmangroupid",
+                                        "mserp_credmannotes",
+                                        "mserp_credmanstatusreasonid",
+                                        "mserp_credmantitleheld",
+                                        "mserp_credmanwithagency",
+                                        "mserp_credmancustunlimitedcredit",
+                                        "mserp_amcommissioninventlocationid",
+                                        "mserp_a365sellable",
+                                        "mserp_amivolvoretailtype",
+                                        "mserp_amivolvoretailcustodiansegmentid",
+                                        "mserp_amivolvoretaildevicecustodiangroupid",
+                                        "mserp_dataareaid",
+                                        "_mserp_dataareaid_id_value",
+                                        "mserp_custcustomerv3entityid",
+                                        "mserp_credmanlastreviewdate",
+                                        "mserp_deliveryaddressvalidfrom",
+                                        "mserp_deliveryaddressvalidto",
+                                        "mserp_credmannextschedreviewdate",
+                                        "mserp_invoiceaddressvalidto",
+                                        "mserp_credmanbusinessstarted",
+                                        "mserp_credmancreditlimitdate",
+                                        "mserp_credmancreditlimitexpirydate",
+                                        "mserp_invoiceaddresstimezone",
+                                        "mserp_addresstimezone",
+                                        "mserp_credmaneligiblecreditlimitdate",
+                                        "mserp_deliveryaddresstimezone",
+                                        "mserp_invoiceaddressvalidfrom"
+                                    ],
+                                    "type": "object"
+                                },
+                                "type": "array"
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "runAfter": {
+                    "Find_Matching_Dataverse_Record": [
+                        "SUCCEEDED"
+                    ]
+                },
+                "type": "ParseJson"
+            },
+            "Switch": {
+                "cases": {
+                    "Create_Record": {
+                        "actions": {
+                            "Create_Dataverse_Record": {
+                                "inputs": {
+                                    "body": {
+                                        "mserp_customeraccount": "@{json(xml(triggerBody()?['contentData']))['CustomerBroadcast']['CustomerID']}",
+                                        "mserp_customergroupid": "@{json(xml(triggerBody()?['contentData']))['CustomerBroadcast']['CustomerGroupID']}",
+                                        "mserp_employeeresponsiblenumber": "@{json(xml(triggerBody()?['contentData']))['CustomerBroadcast']['EmployeeResponsibleID']}",
+                                        "mserp_fullprimaryaddress": "@{json(xml(triggerBody()?['contentData']))['CustomerBroadcast']['PrimaryAddress']}",
+                                        "mserp_namealias": "@{json(xml(triggerBody()?['contentData']))['CustomerBroadcast']['CustomerDisplayName']}",
+                                        "mserp_organizationname": "@{json(xml(triggerBody()?['contentData']))['CustomerBroadcast']['CustomerDisplayName']}",
+                                        "mserp_salescurrencycode": "@{json(xml(triggerBody()?['contentData']))['CustomerBroadcast']['Currency']}",
+                                        "mserp_salestaxgroup": "@{json(xml(triggerBody()?['contentData']))['CustomerBroadcast']['SalesTaxGroup']}"
+                                    },
+                                    "headers": {
+                                        "Authorization": "Bearer @{body('Parse_Bearer_Token')?['access_token']}",
+                                        "Content-Type": "application/json; charset=utf-8",
+                                        "OData-MaxVersion": "4.0",
+                                        "OData-Version": "4.0"
+                                    },
+                                    "method": "POST",
+                                    "uri": "@{parameters('AZ_APIS_Dataverse_URL')}api/data/v9.1/mserp_custcustomerv3entities"
+                                },
+                                "runtimeConfiguration": {
+                                    "contentTransfer": {
+                                        "transferMode": "Chunked"
+                                    }
+                                },
+                                "type": "Http"
+                            },
+                            "Terminate_-_Record_Created": {
+                                "inputs": {
+                                    "runStatus": "Succeeded"
+                                },
+                                "runAfter": {
+                                    "Create_Dataverse_Record": [
+                                        "SUCCEEDED"
+                                    ]
+                                },
+                                "type": "Terminate"
+                            }
+                        },
+                        "case": "Create"
+                    },
+                    "Delete_Record": {
+                        "actions": {
+                            "For_each_-_Delete": {
+                                "actions": {
+                                    "Delete_Dataverse_Record": {
+                                        "inputs": {
+                                            "headers": {
+                                                "Authorization": "Bearer @{body('Parse_Bearer_Token')?['access_token']}",
+                                                "Content-Type": "application/json",
+                                                "OData-MaxVersion": "4.0",
+                                                "OData-Version": "4.0"
+                                            },
+                                            "method": "DELETE",
+                                            "uri": "@{parameters('AZ_APIS_Dataverse_URL')}api/data/v9.1/mserp_custcustomerv3entities(@{item()?['mserp_custcustomerv3entityid']})"
+                                        },
+                                        "runtimeConfiguration": {
+                                            "contentTransfer": {
+                                                "transferMode": "Chunked"
+                                            }
+                                        },
+                                        "type": "Http"
+                                    }
+                                },
+                                "foreach": "@outputs('Parse_JSON')?['body']?['value']",
+                                "type": "foreach"
+                            },
+                            "Terminate_-_Record_Deleted": {
+                                "inputs": {
+                                    "runStatus": "Succeeded"
+                                },
+                                "runAfter": {
+                                    "For_each_-_Delete": [
+                                        "SUCCEEDED"
+                                    ]
+                                },
+                                "type": "Terminate"
+                            }
+                        },
+                        "case": "Delete"
+                    },
+                    "Update_Record": {
+                        "actions": {
+                            "For_each_-_Update": {
+                                "actions": {
+                                    "Patch_Dataverse_Record": {
+                                        "inputs": {
+                                            "body": {
+                                                "mserp_customeraccount": "@{json(xml(triggerBody()?['contentData']))['CustomerBroadcast']['CustomerID']}",
+                                                "mserp_customergroupid": "@{json(xml(triggerBody()?['contentData']))['CustomerBroadcast']['CustomerGroupID']}",
+                                                "mserp_employeeresponsiblenumber": "@{json(xml(triggerBody()?['contentData']))['CustomerBroadcast']['EmployeeResponsibleID']}",
+                                                "mserp_fullprimaryaddress": "@{json(xml(triggerBody()?['contentData']))['CustomerBroadcast']['PrimaryAddress']}",
+                                                "mserp_namealias": "@{json(xml(triggerBody()?['contentData']))['CustomerBroadcast']['CustomerDisplayName']}",
+                                                "mserp_salestaxgroup": "@{json(xml(triggerBody()?['contentData']))['CustomerBroadcast']['SalesTaxGroup']}"
+                                            },
+                                            "headers": {
+                                                "Authorization": "Bearer @{body('Parse_Bearer_Token')?['access_token']}",
+                                                "Content-Type": "application/json",
+                                                "If-Match": "*",
+                                                "OData-MaxVersion": "4.0",
+                                                "OData-Version": "4.0",
+                                                "Prefer": "return=representation"
+                                            },
+                                            "method": "PATCH",
+                                            "uri": "@{parameters('AZ_APIS_Dataverse_URL')}api/data/v9.1/mserp_custcustomerv3entities(@{item()?['mserp_custcustomerv3entityid']})?$select=mserp_customeraccount,mserp_fullprimaryaddress,mserp_customergroupid,mserp_organizationname,mserp_salestaxgroup,mserp_employeeresponsiblenumber"
+                                        },
+                                        "runtimeConfiguration": {
+                                            "contentTransfer": {
+                                                "transferMode": "Chunked"
+                                            }
+                                        },
+                                        "type": "Http"
+                                    }
+                                },
+                                "foreach": "@outputs('Parse_JSON')?['body']?['value']",
+                                "type": "foreach"
+                            },
+                            "Terminate_-_Record_Updated": {
+                                "inputs": {
+                                    "runStatus": "Succeeded"
+                                },
+                                "runAfter": {
+                                    "For_each_-_Update": [
+                                        "SUCCEEDED"
+                                    ]
+                                },
+                                "type": "Terminate"
+                            }
+                        },
+                        "case": "Update"
+                    }
+                },
+                "default": {
+                    "actions": {}
+                },
+                "expression": "@variables('Broadcast Type')",
+                "runAfter": {
+                    "Parse_JSON": [
+                        "SUCCEEDED"
+                    ]
+                },
+                "type": "Switch"
+            }
+        },
+        "contentVersion": "1.0.0.0",
+        "outputs": {},
+        "triggers": {
+            "When_messages_are_available_in_a_topic": {
+                "inputs": {
+                    "parameters": {
+                        "isSessionsEnabled": false,
+                        "subscriptionName": "sbs-customers",
+                        "topicName": "sbt-integration-d365-inbound"
+                    },
+                    "serviceProviderConfiguration": {
+                        "connectionName": "serviceBus",
+                        "operationId": "receiveTopicMessages",
+                        "serviceProviderId": "/serviceProviders/serviceBus"
+                    }
+                },
+                "splitOn": "@triggerOutputs()?['body']",
+                "type": "ServiceProvider"
+            }
+        }
+    },
+    "kind": "Stateful"
+}
